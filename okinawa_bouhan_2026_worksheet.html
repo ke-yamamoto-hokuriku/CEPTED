@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+:root{
+  --ink:#1a1d24; --ink-soft:#2c3038; --ink-mute:#6b6f78;
+  --paper-warm:#f2f2f2; --vermilion:#2c3038; --gold:#6b6f78; --indigo:#2c3038; --green:#2c3038;
+  --line:#cfc7b5; --rule:#d9d1c0;
+  --serif:'Noto Serif CJK JP', serif;
+  --sans:'Noto Sans CJK JP', sans-serif;
+}
+@page{ size:A4; margin:0; }
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ font-family:var(--sans); color:var(--ink); -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+body{ width:100%; }
+
+.head{ border-bottom:1.5pt solid var(--ink); padding-bottom:3mm; margin-bottom:4mm; }
+.eyebrow{ font-size:8.5pt; letter-spacing:0.12em; color:var(--vermilion); font-weight:700; margin-bottom:1.5mm; }
+.title{ font-family:var(--serif); font-weight:700; font-size:22pt; color:var(--ink); line-height:1.18; }
+.subtitle{ font-family:var(--serif); font-weight:500; font-size:12pt; color:var(--ink-soft); margin-top:1mm; }
+.meta{ display:flex; gap:12mm; margin-top:3.4mm; font-size:9.5pt; align-items:flex-end; }
+.meta .f{ display:flex; align-items:flex-end; gap:2mm; }
+.meta .lbl{ font-weight:700; color:var(--ink); white-space:nowrap; }
+.meta .blank{ border-bottom:0.8pt solid var(--ink-mute); display:inline-block; }
+.meta .school{ width:64mm; } .meta .name{ width:48mm; }
+
+.intro{ background:var(--paper-warm); border-left:3pt solid var(--gold); padding:2.8mm 4mm; margin-bottom:4.5mm;
+  font-size:9.5pt; line-height:1.65; color:var(--ink-soft); }
+.intro b{ color:var(--vermilion); font-weight:700; }
+.intro .small{ color:var(--ink-mute); font-size:8.8pt; }
+
+.grid{ width:100%; border-collapse:collapse; table-layout:fixed; }
+.grid col.c1{ width:34mm; } .grid col.c2{ width:58mm; } .grid col.c3{ width:90mm; }
+.colhd{ font-weight:700; font-size:9pt; color:var(--ink); text-align:left;
+  padding:1.6mm 3mm; border-bottom:1.2pt solid var(--ink); vertical-align:bottom; }
+.colhd .n{ font-family:var(--serif); color:var(--vermilion); font-weight:700; margin-right:1.4mm; }
+.colhd .hint{ display:block; font-weight:400; font-size:7.6pt; color:var(--ink-mute); margin-top:0.5mm; }
+
+.band td{ padding:2mm 3mm; color:var(--ink); }
+.band.a td, .band.b td{ background:#fff; border-top:1.4pt solid var(--ink); border-bottom:1.4pt solid var(--ink); }
+.band .bt{ font-family:var(--serif); font-weight:700; font-size:11.5pt; }
+.band .bh{ font-size:8.6pt; font-weight:400; margin-left:3mm; color:var(--ink-mute); }
+.band .bh em{ font-style:normal; font-weight:700; color:var(--ink); }
+
+.cell{ border:0.8pt solid var(--line); padding:0; vertical-align:top; }
+.sp{ height:58mm; } .sp3{ height:51mm; }
+.guide{ font-size:7.4pt; color:var(--ink-mute); padding:1.4mm 2.5mm 0.6mm; }
+.guide .g{ display:inline-block; border:0.6pt solid var(--line); border-radius:2pt; padding:0.2mm 1.6mm; margin-right:1.4mm; }
+
+.share{ margin-top:5mm; border:0.8pt solid var(--line); border-top:2.4pt solid var(--indigo); padding:2.8mm 4mm 3mm; }
+.share .sh-t{ font-family:var(--serif); font-weight:700; font-size:10.5pt; color:var(--indigo); }
+.share .sh-t .ko{ font-family:var(--serif); font-weight:400; font-style:italic; font-size:8pt; color:var(--ink-mute); margin-left:2.5mm; }
+.share .sh-d{ font-size:8.8pt; color:var(--ink-mute); margin:0.6mm 0 0; }
+.share .sh-space{ height:86mm; }
+
+.foot{ margin-top:3mm; display:flex; justify-content:space-between; align-items:center;
+  font-size:7.6pt; color:var(--ink-mute); border-top:0.6pt solid var(--rule); padding-top:1.6mm; }
+.foot .r{ font-family:var(--serif); font-style:italic; letter-spacing:0.05em; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="eyebrow">令和8年度　沖縄県　学校安全指導者養成講習会</div>
+    <div class="title">学校防犯ワークシート</div>
+    <div class="subtitle">自校の「入りやすい」「見えにくい」を見直す</div>
+    <div class="meta">
+      <div class="f"><span class="lbl">学校名</span><span class="blank school"></span></div>
+      <div class="f"><span class="lbl">お名前</span><span class="blank name"></span></div>
+    </div>
+  </div>
+
+  <div class="intro">
+    自校の<b>「入りやすい」（領域性）</b>・<b>「見えにくい」（監視性）</b>場所を選び、<b>①場所 ②現状 ③明日からできる工夫</b>を書き出します。
+    <span class="small">「だれが・いつ・どのように取組むか」まで書けると実現可能性が高まります。</span>
+  </div>
+
+  <table class="grid">
+    <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+    <thead><tr>
+      <th class="colhd"><span class="n">①</span>場所<span class="hint">具体的に。例：北側の植栽／職員室の窓</span></th>
+      <th class="colhd"><span class="n">②</span>現状（いまどうなっているか）<span class="hint">なぜ入りやすい・見えにくいのか</span></th>
+      <th class="colhd"><span class="n">③</span>明日からできる工夫<span class="hint">小さな一手で構わない</span></th>
+    </tr></thead>
+    <tbody>
+      <tr class="band a"><td colspan="3"><span class="bt">入りやすい場所を改善する（領域性を高める）</span><span class="bh">ヒント： <em>門扉・施錠・受付・動線・玄関</em></span></td></tr>
+      <tr>
+        <td class="cell"><div class="sp"></div></td>
+        <td class="cell"><div class="sp"></div></td>
+        <td class="cell"><div class="guide"><span class="g">だれが</span><span class="g">いつ</span><span class="g">どのように</span></div><div class="sp3"></div></td>
+      </tr>
+      <tr class="band b"><td colspan="3"><span class="bt">見えにくい場所を改善する（監視性を高める）</span><span class="bh">ヒント： <em>植栽・窓・棚・カーテン・フェンス掲示</em></span></td></tr>
+      <tr>
+        <td class="cell"><div class="sp"></div></td>
+        <td class="cell"><div class="sp"></div></td>
+        <td class="cell"><div class="guide"><span class="g">だれが</span><span class="g">いつ</span><span class="g">どのように</span></div><div class="sp3"></div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="share">
+    <div class="sh-t">シェアメモ<span class="ko">for sharing</span></div>
+    <div class="sh-d">他校で「いいな」と思った工夫・自校でも試せそうなこと</div>
+    <div class="sh-space"></div>
+  </div>
+
+  <div class="foot">
+    <span>犯罪機会論にもとづいた学校の安全 — 入りにくく、見えやすい学校へ</span>
+    <span class="r">山本啓一（北陸大学）</span>
+  </div>
+</body>
+</html>
