@@ -161,12 +161,13 @@ window.dash = (() => {
 <div class="kq">
   <header class="kq-head" id="top">
     <h1>北九州市の治安情勢</h1>
-    <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した国勢調査人口をもとに、次の三つの問いについて検討した。</p>
+    <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した国勢調査人口をもとに、次の三つの問いについて検討した。最後に、防犯環境設計（CPTED）と犯罪機会論の観点から対策を提言する。</p>
     <nav class="kq-path" aria-label="分析の流れ" data-source="flowsteps">
       <a href="#q1"><span class="q">問1</span>北九州市の刑法犯 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件</a><span class="arr" aria-hidden="true">→</span>
       <a href="#q2"><span class="q">問2</span>うち自転車盗 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=2">—</span>）</a><span class="arr" aria-hidden="true">→</span>
       <a href="#q3"><span class="q">問3</span>うち小倉南区 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=3">—</span>）</a><span class="arr" aria-hidden="true">→</span>
-      <a href="#monthly-title">うち曽根交番管内 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=4">—</b>件（2024年は <span class="v" data-fmt="int" data-source="flowsteps" data-field="prev" data-where="step=4">—</span>件）</a>
+      <a href="#monthly-title">うち曽根交番管内 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=4">—</b>件（2024年は <span class="v" data-fmt="int" data-source="flowsteps" data-field="prev" data-where="step=4">—</span>件）</a><span class="arr" aria-hidden="true">→</span>
+      <a href="#q4"><span class="q">提言</span>増えている三つの犯罪への対策</a>
     </nav>
     <p class="kq-pathnote">2025年の件数。件数の多いところへ順に対象を絞って分析した。</p>
   </header>
@@ -314,6 +315,51 @@ window.dash = (() => {
     </div>
   </section>
 
+  <!-- ===== 提言 ===== -->
+  <section class="kq-q" id="q4">
+    <div class="kq-qhead"><span class="kq-qnum">提言</span><h2>防犯環境設計（CPTED）と犯罪機会論から見た対策について</h2></div>
+    <p class="kq-lead">問1で見たとおり、北九州市は人口当たりで見れば県内で安全ではない都市とは言えない。ただし問2で見たとおり、2021年からの増加の大半は知能犯、自転車盗、万引きの三つによる。犯罪は、犯行の機会があるところで起きる。犯罪が起きやすい場所や状況に手を入れて機会を減らす防犯環境設計（CPTED）の考え方は、自転車盗と万引きの対策に適している。一方、知能犯は環境設計では防ぎにくく、だまされにくい人を増やす取組が必要である。以下、この三つの犯罪について対策を提言する。</p>
+    <p class="kq-ans"><span class="tag">提言</span>自転車盗には、駐輪場の環境整備と、学校単位の施錠指導・探究学習の二つで臨む。知能犯（詐欺）には、AIを使った詐欺の疑似体験で、手口を体で覚えてもらう。万引きには、防犯環境設計の観点から店舗の売場を見直す。あわせて、交番管内別の月次件数を区役所と警察署が共有し、急な増加を早く捉える仕組みをつくることを提案する。</p>
+    <div class="kq-hyps">
+      <div class="kq-hyp">
+        <span class="h">自転車盗｜被害対象の強化</span>
+        <h3>学校単位の施錠指導と探究学習</h3>
+        <div><div class="kq-big"><span class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</span></div><p>小倉南区で盗まれた自転車のうち無施錠のもの（2025年）</p></div>
+        <p>盗まれた自転車の約7割は鍵がかかっていなかった。被害者には中高生が多く、朝夕の通学時間帯に集中している。下曽根駅の駐輪場でも、2024年2月の視察の時点で、高校生の自転車に鍵のかかっていないものが目立っていた。駐輪場の設備を整えても、鍵がかかっていなければ被害は防げない。区役所と学校が組み、学校単位で生徒に二重ロックを呼びかけることが、最も効果の見込める対策である。探究学習のテーマとして取り上げ、生徒自身に駐輪場の施錠率や被害の多い場所を調べさせ、対策を考えさせる方法もある。教えられるより、自分たちで調べたことのほうが行動につながりやすい。</p>
+      </div>
+      <div class="kq-hyp">
+        <span class="h">自転車盗｜接近の制御</span>
+        <h3 id="stn-title">高架下・階段下の駐輪場へのガードパイプ設置</h3>
+        <div class="kq-chart" id="stn-chart" data-source="station_years" style="min-height: 150px"></div>
+        <p class="note">駅のある町丁目の件数（城野1丁目、湯川新町4丁目）。</p>
+        <p>安部山公園駅や北方駅のように高架下や階段下にある駐輪場は、周囲の目が届きにくい。自転車をスタンドで立てて並べるだけの駐輪場では、鍵を壊して持ち去ることも難しくない。安部山公園駅では2025年度に防犯カメラ・警告看板・照明が設けられたが、2025年の件数は <span class="v" data-fmt="int" data-source="station_years" data-field="y2025" data-where="station=安部山公園駅">—</span>件で、前年の <span class="v" data-fmt="int" data-source="station_years" data-field="y2024" data-where="station=安部山公園駅">—</span>件からほとんど減っていない。ガードパイプやラックを全列に設け、自転車を構造物に鍵でつなげる（アースロック）ようにする必要がある。</p>
+      </div>
+      <div class="kq-hyp">
+        <span class="h">自転車盗｜自然監視性の確保・領域性の強化</span>
+        <h3>放置自転車の撤去と駐輪場の手入れ</h3>
+        <div><div class="kq-big"><span class="v" data-fmt="int" data-source="station_years" data-field="y2024" data-where="station=城野駅">—</span>→<span class="v" data-fmt="int" data-source="station_years" data-field="y2025" data-where="station=城野駅">—</span>件</div><p>城野駅のある城野1丁目の件数（2024→2025年）</p></div>
+        <p>放置自転車が積み上がった駐輪場や、落書きや汚れた照明が残る場所は、管理されていないという印象を与え、犯行をためらわせる力が弱い。城野駅では、区役所が放置自転車を撤去し、二重ロックを呼びかけた後、件数が約3割減った。落書きの消去、照明器具の清掃、雑草の除去など、費用をかけずにすぐできる手入れから始めたい。区画の表示や管理者の連絡先を掲げ、駐輪場が誰かに管理されていることを示すことも、領域性を高める。</p>
+      </div>
+      <div class="kq-hyp">
+        <span class="h">知能犯｜被害に遭いにくい人を増やす</span>
+        <h3>AIを使った詐欺の疑似体験</h3>
+        <div><div class="kq-big"><span class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=知能犯">—</span>件</div><p>北九州市の知能犯の増加（2021→2025年）。人口当たりでは県の <span class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=知能犯">—</span> 倍</p></div>
+        <p>知能犯の多くは、電話やSNSを通じた詐欺である。犯行の場が住民の手元の電話やスマートフォンにあるため、まちの環境を整えても防ぐことは難しい。被害を減らすには、手口を知り、だまされにくい人を増やすしかない。他府県では、AIを使った疑似体験がすでに始まっている。大阪府警察の四條畷警察署は大阪電気通信大学と組み、AIが犯人役として電話をかけ、参加者が犯人とのやりとりを体験する催しを商業施設で開いた。香川県警察は、ソフトバンクと共同で開発した生成AIのツールを使い、大学生に詐欺グループとのSNSでのやりとりを体験させている。チラシや講話で手口を聞くより、実際にだまされかける体験のほうが記憶に残る。北九州市でも、市民が登録すればAIから模擬の詐欺電話がかかり、終了後に手口を解説するような取組を検討したい。</p>
+      </div>
+      <div class="kq-hyp">
+        <span class="h">万引き｜店舗の防犯環境設計</span>
+        <h3>売場の見通しと出入口の見直し</h3>
+        <div><div class="kq-big"><span class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=万引き">—</span>件</div><p>北九州市の万引きの増加（2021→2025年）。人口当たりでは県の <span class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=万引き">—</span> 倍</p></div>
+        <p>万引きは、店員の目が届かない場所で起きる。防犯環境設計の観点から店舗を見直すと、高い陳列棚や柱でできた死角、レジから見えない出入口、盗まれやすい商品の置き場所などが問題になる。棚の高さを抑えて売場の見通しをよくする、出入口をレジの近くにまとめる、盗まれやすい商品をレジの近くや店員の動線上に置く、来店客に声をかけるといった対策は、費用をかけずに始められる。警察と市が、件数の多い店舗を対象に、売場の点検と改善の助言を行う仕組みをつくりたい。</p>
+      </div>
+      <div class="kq-hyp">
+        <span class="h">共通｜効果の検証</span>
+        <h3>交番管内別の月次件数の共有</h3>
+        <div><div class="kq-big"><span class="v" data-fmt="int" data-source="sone_peak" data-field="y2024" data-row="0">—</span>件</div><p>曽根交番管内の2024年6〜10月の件数（前年同期は <span class="v" data-fmt="int" data-source="sone_peak" data-field="y2023" data-row="0">—</span>件）</p></div>
+        <p>曽根交番管内の件数は2024年6月から急に増え、10月まで高い水準が続いた。月ごとの件数を見ていれば、増え始めた時点で気づくことができた。区役所と警察署が交番管内別の月次件数を共有し、急な増加を早く捉えて対策を打てるようにしたい。対策の効果も、区全体の件数ではなく、対策した駐輪場の周辺で被害が何件減ったかで確かめることが望ましい。</p>
+      </div>
+    </div>
+  </section>
 
   <footer class="kq-foot">
     <p>資料：福岡県警察「刑法犯 市区町村別認知件数」（各年確定値）、福岡県警察「犯罪オープンデータ（自転車盗）」（2018〜2025年）、福岡県「令和7年国勢調査 人口等基本集計 結果の要約」付表（市区町村別人口）、国勢調査（2010・2015・2020年）。</p>
@@ -431,6 +477,19 @@ window.dash = (() => {
     })
   });
 
+  dash.calc('station_years', {
+    inputs: ['minami_blocks_years'], title: '駅のある町丁目の年別件数',
+    description: '小倉南区の自転車盗のうち、駅のある町丁目の件数を駅ごとに年別に集計したもの。',
+    fn: (blocks) => {
+      const st = [...new Set(blocks.filter(r => r.station).map(r => r.station))];
+      return st.map(s => { const o = { station: s }; for (let y = 2018; y <= 2025; y++) o['y' + y] = d3.sum(blocks.filter(r => r.station === s && Number(r.year) === y), r => Number(r.count)); return o; });
+    }
+  });
+  dash.calc('sone_peak', {
+    inputs: ['sone_monthly'], title: '曽根交番管内の6〜10月の件数',
+    description: '曽根交番管内の自転車盗の6〜10月の合計（2023年・2024年）。',
+    fn: (m) => { const s = y => d3.sum(m.filter(r => r.month >= y + '-06' && r.month <= y + '-10'), r => Number(r.count)); return [{ y2023: s(2023), y2024: s(2024) }]; }
+  });
   dash.calc('flowsteps', {
     inputs: ['kk_cats', 'ward_cats', 'minami_koban'], title: '分析の流れ（2025年の件数）',
     description: '北九州市の刑法犯総数、そのうち自転車盗、そのうち小倉南区の自転車盗、そのうち曽根交番管内の自転車盗。割合は一つ前の段階に対するもの。曽根交番管内は2024年の件数も示す。',
@@ -1046,11 +1105,31 @@ window.dash = (() => {
     }).on('pointerleave', () => { tip.hidden = true; });
     drawn.place = true;
   }
+  function drawStation() {
+    const box = document.getElementById('stn-chart');
+    if (!need(box, ['station_years'])) return;
+    const S = ['城野駅', '安部山公園駅'], YS = [2023, 2024, 2025];
+    const data = dash.data('station_years').data.filter(r => S.includes(r.station)).map(r => ({ station: r.station, pts: YS.map(y => ({ y, v: Number(r['y' + y]) })) }));
+    const W = Math.max(240, box.clientWidth), H = 150, m = { t: 14, r: 92, b: 22, l: 30 };
+    const x = d3.scalePoint(YS, [m.l, W - m.r]), y = d3.scaleLinear([0, d3.max(data, d => d3.max(d.pts, p => p.v)) * 1.15], [H - m.b, m.t]);
+    const svg = svgFor(box, W, H, 'stn-title');
+    YS.forEach(v => text(svg, x(v), H - 6, v + '年', { anchor: 'middle', fill: 'var(--color-fg-muted)' }));
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    data.forEach((d, i) => {
+      const c = d.station === '城野駅' ? C0() : 'var(--color-fg-muted)';
+      const path = svg.append('path').attr('d', d3.line(p => x(p.y), p => y(p.v))(d.pts)).attr('fill', 'none').attr('stroke', c).attr('stroke-width', 2.4);
+      if (!drawn.stn && motion) { const L = path.node().getTotalLength(); path.style('--len', L).attr('stroke-dasharray', L).style('animation', `kq-draw 900ms ${i * 200}ms var(--cds-ease-out) both`); }
+      d.pts.forEach(p => { svg.append('circle').attr('cx', x(p.y)).attr('cy', y(p.v)).attr('r', 3.2).attr('fill', c); text(svg, x(p.y), y(p.v) - 7, String(p.v), { anchor: 'middle', fill: 'var(--color-fg)' }); });
+      const last = d.pts[d.pts.length - 1];
+      text(svg, x(last.y) + 8, y(last.v) + 4, d.station, { anchor: 'start', fill: c, weight: 600 });
+    });
+    drawn.stn = true;
+  }
   dash.onData(() => {
     fillValues();
     drawMuni(false); drawPrefMap(false); drawTypes(); drawShare();
     drawIncrease(); drawStack(); drawHeat();
-    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawPlace(); drawLock(); drawHour();
+    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawPlace(); drawLock(); drawHour(); drawStation();
     if (!drawn.link) { const el = location.hash && document.getElementById(location.hash.slice(1)); if (el) { el.scrollIntoView(); drawn.link = true; } }
   });
   root.querySelectorAll('.kq-path a').forEach(a => a.addEventListener('click', ev => { const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) { ev.preventDefault(); el.scrollIntoView({ behavior: motion ? 'smooth' : 'auto' }); dash.setLink(el.id); } }));
