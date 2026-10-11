@@ -106,6 +106,18 @@ window.dash = (() => {
 .kq-foot p { margin: 0 0 var(--cds-gap-xs); }
 .kq-fail { display: flex; align-items: center; justify-content: center; gap: .5em; min-height: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .kq-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.kq-lead { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.75; color: var(--color-fg-muted); max-width: 64em; }
+.kq-flow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: var(--cds-gap-lg); align-items: center; }
+@media (max-width: 760px) { .kq-flow { grid-template-columns: minmax(0, 1fr); } }
+.kq-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--cds-gap-sm); }
+.kq-step { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: var(--cds-gap-sm); align-items: start; padding: var(--cds-pad-sm); border-radius: var(--cds-radius); cursor: pointer; transition: background var(--cds-dur-slow); }
+.kq-step:hover, .kq-step.on { background: var(--kq-hl); }
+.kq-step .n { width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: var(--cds-font-size-caption); background: var(--color-panel); border: 1px solid var(--color-border-line); }
+.kq-step.on .n { background: var(--kq-c0); color: #fff; border-color: var(--kq-c0); }
+.kq-step .t { font-size: var(--cds-font-size-body); line-height: 1.6; }
+.kq-step .t b { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 1.35rem; font-variant-numeric: tabular-nums; margin-right: .15em; }
+.kq-step .t small { display: block; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.kq-step .go { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-decoration: underline; text-underline-offset: 2px; }
 [data-dash-source-state=empty] { color: transparent; }
 [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 @media (prefers-reduced-motion: no-preference) {
@@ -120,6 +132,7 @@ window.dash = (() => {
 @keyframes kq-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes kq-growx { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes kq-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kq-zoom { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes kq-pulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
 </style>
 
@@ -129,6 +142,21 @@ window.dash = (() => {
     <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した国勢調査人口をもとに、次の三つの問いについて検討した。</p>
     <nav class="kq-nav" aria-label="問いへ移動"><a href="#q1">問1　県内で安全ではない都市と言えるか</a><a href="#q2">問2　北九州市で多く発生している犯罪</a><a href="#q3">問3　小倉南区で多発する自転車盗</a></nav>
   </header>
+
+
+  <section class="kq-card wide" id="flow" aria-labelledby="flow-title">
+    <h3 id="flow-title">この分析の流れ：北九州市全体から小倉南区の自転車盗へ</h3>
+    <p class="note">北九州市の刑法犯（2025年）から、件数の多いところへ段階的に対象を絞っていく。正方形の面積は件数に比例している。段階を選ぶと、その部分が強調される。</p>
+    <div class="kq-flow">
+      <div class="kq-chart" id="flow-chart" data-source="flowsteps" style="min-height: 260px"></div>
+      <ol class="kq-steps" id="flow-steps" data-source="flowsteps">
+        <li class="kq-step" data-step="0"><span class="n">1</span><span class="t"><small>北九州市の刑法犯認知件数</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件　<span class="go" data-go="q1">問1へ</span><small>人口当たりでは県平均並みである。</small></span></li>
+        <li class="kq-step" data-step="1"><span class="n">2</span><span class="t"><small>そのうち自転車盗</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=2">—</span>）　<span class="go" data-go="q2">問2へ</span><small>罪種・手口別で最も件数が多い。</small></span></li>
+        <li class="kq-step" data-step="2"><span class="n">3</span><span class="t"><small>そのうち小倉南区</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=3">—</span>）　<span class="go" data-go="q3">問3へ</span><small>7区の中で最も件数が多い。</small></span></li>
+        <li class="kq-step" data-step="3"><span class="n">4</span><span class="t"><small>そのうち曽根交番管内（下曽根駅周辺）</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=4">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=4">—</span>）　<span class="go" data-go="q3">問3へ</span><small>2024年は <span class="v" data-fmt="int" data-source="flowsteps" data-field="prev" data-where="step=4">—</span> 件で、区内の急増の中心であった。</small></span></li>
+      </ol>
+    </div>
+  </section>
 
   <!-- ===== Q1 ===== -->
   <section class="kq-q" id="q1">
@@ -171,6 +199,7 @@ window.dash = (() => {
   <!-- ===== Q2 ===== -->
   <section class="kq-q" id="q2">
     <div class="kq-qhead"><span class="kq-qnum">問 2</span><h2>北九州市で多く発生している犯罪について</h2></div>
+    <p class="kq-lead">問1で見たとおり、北九州市の刑法犯は人口当たりで県平均並みである。では、市内ではどのような犯罪が多いのか。2025年の件数を罪種・手口別に見ると、最も多いのは自転車盗（<span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</span>件）で、刑法犯全体の約2割を占める。2021年からの増加でも、知能犯に次いで大きい。</p>
     <p class="kq-ans"><span class="tag">結論</span>2021年から2025年にかけて、北九州市の認知件数は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=合計">—</b> 件増えた。このうち知能犯 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=知能犯">—</b> 件、自転車盗 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=自転車盗">—</b> 件、万引き <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=万引き">—</b> 件の三つで、増加分の大半を占める。区別に見ると、知能犯は八幡西区で、自転車盗は小倉北区と小倉南区で大きく増えた。一方、粗暴犯は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=粗暴犯">—</b> 件と減少した。</p>
     <div class="kq-grid">
       <div class="kq-card">
@@ -199,6 +228,7 @@ window.dash = (() => {
   <!-- ===== Q3 ===== -->
   <section class="kq-q" id="q3">
     <div class="kq-qhead"><span class="kq-qnum">問 3</span><h2>小倉南区で多発する自転車盗について</h2></div>
+    <p class="kq-lead">市内の自転車盗を区別に見ると、2025年に最も件数が多いのは小倉南区（<span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</span>件）で、市全体の約3割を占める。2024年の市内の増加も、半分近くが小倉南区であった。そこで、小倉南区のどこで、どのような自転車盗が起きているのかを調べた。</p>
     <p class="kq-ans"><span class="tag">結論</span>小倉南区の自転車盗は、駅周辺の町丁目に集中している。2024年の急増は、曽根交番管内（下曽根駅周辺）で6〜10月に一時的に集中して発生したためである。2025年に盗まれた自転車の <b class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</b> は無施錠で、被害者には中高生が多い。発生時刻は朝の通学時間帯と夕方に集中している。中高生が通学に使う自転車を、無施錠のまま駅周辺に置いていることが主な原因と考えられる。</p>
     <div class="kq-grid">
       <div class="kq-card">
@@ -246,6 +276,7 @@ window.dash = (() => {
       </div>
     </div>
   </section>
+
 
   <footer class="kq-foot">
     <p>資料：福岡県警察「刑法犯 市区町村別認知件数」（各年確定値）、福岡県警察「犯罪オープンデータ（自転車盗）」（2019〜2025年）、福岡県「令和7年国勢調査 人口等基本集計 結果の要約」付表（市区町村別人口）、国勢調査（2010・2015・2020年）。</p>
@@ -358,6 +389,23 @@ window.dash = (() => {
     })
   });
 
+  dash.calc('flowsteps', {
+    inputs: ['kk_cats', 'ward_cats', 'minami_koban'], title: '分析の流れ（2025年の件数）',
+    description: '北九州市の刑法犯総数、そのうち自転車盗、そのうち小倉南区の自転車盗、そのうち曽根交番管内の自転車盗。割合は一つ前の段階に対するもの。曽根交番管内は2024年の件数も示す。',
+    fn: (kk_cats, ward_cats, minami_koban) => {
+      const y25 = kk_cats.filter(r => Number(r.year) === 2025);
+      const total = y25.reduce((s, r) => s + Number(r.count), 0);
+      const bike = Number(y25.find(r => r.category === '自転車盗').count);
+      const minami = Number(ward_cats.find(r => r.ward === '小倉南区' && r.category === '自転車盗').c2025);
+      const sone = y => Number((minami_koban.find(r => Number(r.year) === y && r.koban === '曽根') || { count: 0 }).count);
+      return [
+        { step: 1, label: '北九州市の刑法犯', count: total, share: 1, prev: null },
+        { step: 2, label: '自転車盗', count: bike, share: Math.round(bike / total * 1000) / 1000, prev: null },
+        { step: 3, label: '小倉南区', count: minami, share: Math.round(minami / bike * 1000) / 1000, prev: null },
+        { step: 4, label: '曽根交番管内', count: sone(2025), share: Math.round(sone(2025) / minami * 1000) / 1000, prev: sone(2024) }
+      ];
+    }
+  });
   /* ---------- helpers ---------- */
   const fmt = {
     n2: v => d3.format('.2f')(v),
@@ -431,6 +479,40 @@ window.dash = (() => {
   }
   function pressGroup(attr, value) { root.querySelectorAll(`[${attr}]`).forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute(attr) === value))); }
 
+
+  /* ---------- flow ---------- */
+  let flowOn = -1;
+  function drawFlow() {
+    const box = document.getElementById('flow-chart');
+    if (!need(box, ['flowsteps'])) return;
+    const rows = dash.data('flowsteps').data;
+    const W = Math.max(240, box.clientWidth), H = Math.min(320, Math.max(240, W * .75));
+    const side = Math.min(W - 20, H - 20);
+    const s0 = Math.sqrt(rows[0].count);
+    const svg = svgFor(box, W, H, 'flow-title');
+    const x0 = (W - side) / 2, y0 = H - 10;
+    const fills = [MUTED, 'color-mix(in srgb, ' + C0() + ' 35%, var(--color-panel))', 'color-mix(in srgb, ' + C0() + ' 70%, var(--color-panel))', C0()];
+    rows.forEach((r, i) => {
+      const sd = Math.max(4, side * Math.sqrt(r.count) / s0);
+      const rect = svg.append('rect').attr('x', x0).attr('y', y0 - sd).attr('width', sd).attr('height', sd).attr('rx', i ? 3 : 6)
+        .attr('fill', fills[i]).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5)
+        .attr('opacity', flowOn < 0 || flowOn >= i ? 1 : .35).style('cursor', 'pointer')
+        .on('click', () => setFlow(i));
+      if (!drawn.flow && motion) { rect.style('transform-box', 'fill-box').style('transform-origin', '0% 100%').style('animation', `kq-zoom 700ms var(--cds-ease-out) ${i * 350}ms both`); }
+      if (sd > 46) text(svg, x0 + sd - 8, y0 - sd + 18, r.label, { anchor: 'end', fill: i >= 2 ? 'var(--color-panel)' : 'var(--color-fg)', weight: 600 });
+      else text(svg, x0 + sd + 6, y0 - sd / 2 + 4, r.label, { fill: 'var(--color-fg)', weight: 600 });
+    });
+    root.querySelectorAll('#flow-steps .kq-step').forEach(li => li.classList.toggle('on', Number(li.getAttribute('data-step')) === flowOn));
+    drawn.flow = true;
+  }
+  function setFlow(i) { flowOn = flowOn === i ? -1 : i; drawFlow(); }
+  root.querySelectorAll('#flow-steps .kq-step').forEach(li => {
+    li.addEventListener('click', ev => {
+      const go = ev.target.closest('[data-go]');
+      if (go) { const el = document.getElementById(go.getAttribute('data-go')); if (el) { el.scrollIntoView({ behavior: motion ? 'smooth' : 'auto' }); dash.setLink(el.id); } return; }
+      setFlow(Number(li.getAttribute('data-step')));
+    });
+  });
   /* ---------- Q1: municipalities ---------- */
   let mm = 'total', mf = 'big';
   const MLAB = { total: '刑法犯総数', violent: '粗暴犯', theft: '窃盗犯', fraud: '知能犯', bike: '自転車盗' };
@@ -797,8 +879,10 @@ window.dash = (() => {
     drawn.hour = true;
   }
 
+
   dash.onData(() => {
     fillValues();
+    drawFlow();
     drawMuni(false); drawTypes(); drawShare();
     drawIncrease(); drawStack(); drawHeat();
     drawKoban(); drawBlocks(false); drawMonthly(); drawLock(); drawHour();
