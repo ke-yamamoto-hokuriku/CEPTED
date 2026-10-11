@@ -262,7 +262,7 @@ window.dash = (() => {
     <div class="kq-grid">
       <div class="kq-card">
         <h3 id="koban-title">交番管内別の推移</h3>
-        <p class="note">2024年に曽根交番管内で急増したが、2025年には前年までの水準近くまで減少した。</p>
+        <p class="note">2024年に曽根交番管内で急増したが、2025年には前年までの水準近くまで減少した。各交番管内の主な駅は、曽根が下曽根駅、葛原が安部山公園駅、北方が城野駅と北方駅、徳力が徳力公団前駅と志井公園駅である。</p>
         <div class="kq-chart" id="koban-chart" data-source="minami_koban"></div>
       </div>
       <div class="kq-card">
@@ -848,7 +848,8 @@ window.dash = (() => {
     const tot = d3.rollup(raw, v => d3.sum(v, r => r.count), r => r.koban);
     const top = [...tot].sort((a, b) => b[1] - a[1]).slice(0, 5).map(d => d[0]);
     const years = [...new Set(raw.map(r => r.year))].sort();
-    const W = Math.max(280, box.clientWidth), H = 250, m = { t: 14, r: 64, b: 24, l: 34 };
+    const KST = { '曽根': '下曽根駅', '葛原': '安部山公園駅', '北方': '城野・北方駅', '徳力': '徳力公団前・志井公園駅' };
+    const W = Math.max(280, box.clientWidth), wide = W >= 480, H = 250, m = { t: 14, r: wide ? 214 : 64, b: 24, l: 34 };
     const x = d3.scaleLinear(d3.extent(years), [m.l, W - m.r]);
     const y = d3.scaleLinear([0, d3.max(raw.filter(r => top.includes(r.koban)), r => r.count) * 1.1], [H - m.b, m.t]);
     const svg = svgFor(box, W, H, 'koban-title');
@@ -863,13 +864,13 @@ window.dash = (() => {
       const last = pts[pts.length - 1];
       ends.push({ y: y(last.count) + 4, k, last, hl });
     });
-    spread(ends, 13, m.t, H - m.b).forEach(e => text(svg, W - m.r + 6, e.y, `${e.k} ${e.last.count}`, { fill: e.hl ? 'var(--color-fg)' : 'var(--color-fg-muted)', weight: e.hl ? 600 : 400 }));
+    spread(ends, 13, m.t, H - m.b).forEach(e => text(svg, W - m.r + 6, e.y, wide && KST[e.k] ? `${e.k}（${KST[e.k]}）${e.last.count}` : `${e.k} ${e.last.count}`, { fill: e.hl ? 'var(--color-fg)' : 'var(--color-fg-muted)', weight: e.hl ? 600 : 400 }));
     const tip = tipFor(box);
     svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
       .on('pointermove', ev => {
         const [px] = d3.pointer(ev); const yr = years.reduce((a, b) => Math.abs(x(b) - px) < Math.abs(x(a) - px) ? b : a);
         const { sx, sy } = scaleXY(box, W, H);
-        showTip(box, tip, [['t', yr + '年']].concat(top.map(k => [null, `${k}　${(raw.find(r => r.year === yr && r.koban === k) || { count: 0 }).count}件`])), x(yr) * sx, m.t * sy + 40);
+        showTip(box, tip, [['t', yr + '年']].concat(top.map(k => [null, `${k}${KST[k] ? '（' + KST[k] + '）' : ''}　${(raw.find(r => r.year === yr && r.koban === k) || { count: 0 }).count}件`])), x(yr) * sx, m.t * sy + 40);
       }).on('pointerleave', () => { tip.hidden = true; });
     drawn.koban = true;
   }
