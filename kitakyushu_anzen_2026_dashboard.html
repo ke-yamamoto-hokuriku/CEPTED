@@ -75,7 +75,8 @@ window.dash = (() => {
 .kq-ans { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.75; max-width: 64em; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-lg); }
 .kq-ans .tag { display: inline-block; font-size: var(--cds-font-size-caption); font-weight: 600; margin-right: .6em; padding: 0 .5em; border-radius: 4px; background: var(--color-fg); color: var(--color-bg); }
 .kq-ans b { font-weight: 600; font-variant-numeric: tabular-nums; }
-.kq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+.kq-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--cds-gap-md); }
+@media (max-width: 760px) { .kq-grid { grid-template-columns: minmax(0, 1fr); } }
 .kq-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; position: relative; }
 .kq-card.wide { grid-column: 1 / -1; }
 .kq-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
@@ -126,13 +127,13 @@ window.dash = (() => {
   <header class="kq-head" id="top">
     <h1>北九州市の治安情勢と小倉南区の自転車盗</h1>
     <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した国勢調査人口をもとに、次の三つの問いについて検討した。</p>
-    <nav class="kq-nav" aria-label="問いへ移動"><a href="#q1">問1　県内で危険な都市と言えるか</a><a href="#q2">問2　北九州市で多く発生している犯罪</a><a href="#q3">問3　小倉南区で多発する自転車盗</a></nav>
+    <nav class="kq-nav" aria-label="問いへ移動"><a href="#q1">問1　県内で安全ではない都市と言えるか</a><a href="#q2">問2　北九州市で多く発生している犯罪</a><a href="#q3">問3　小倉南区で多発する自転車盗</a></nav>
   </header>
 
   <!-- ===== Q1 ===== -->
   <section class="kq-q" id="q1">
-    <div class="kq-qhead"><span class="kq-qnum">問 1</span><h2>北九州市は福岡県の中で危険な都市だと言えるか</h2></div>
-    <p class="kq-ans"><span class="tag">結論</span>人口当たりで見るかぎり、北九州市が県内で危険な都市だとは言えない。2025年の人口千人当たり刑法犯は北九州市 <b class="v" data-fmt="n2" data-source="munirates" data-field="total" data-where="name=北九州市">—</b> 件で、県平均 <b class="v" data-fmt="n2" data-source="prefrates" data-field="total" data-row="0">—</b> 件を下回る。県内 <b class="v" data-fmt="int" data-source="kkrank" data-field="n_all" data-row="0">—</b> 市町村の中で <b class="v" data-fmt="int" data-source="kkrank" data-field="rank_all" data-row="0">—</b> 番目、人口10万人以上の <b class="v" data-fmt="int" data-source="kkrank" data-field="n_big" data-row="0">—</b> 市の中では <b class="v" data-fmt="int" data-source="kkrank" data-field="rank_big" data-row="0">—</b> 番目である。罪種別では知能犯（県の <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=知能犯">—</b> 倍）や風俗犯（<b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=風俗犯">—</b> 倍）が県平均を上回るが、粗暴犯は <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=粗暴犯">—</b> 倍でほぼ県並み、件数の最も多い窃盗犯は <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=窃盗犯">—</b> 倍で県平均を下回る。</p>
+    <div class="kq-qhead"><span class="kq-qnum">問 1</span><h2>北九州市は福岡県の中で安全ではない都市だと言えるか</h2></div>
+    <p class="kq-ans"><span class="tag">結論</span>人口当たりで見るかぎり、北九州市が県内で安全ではない都市だとは言えない。2025年の人口千人当たり刑法犯は北九州市 <b class="v" data-fmt="n2" data-source="munirates" data-field="total" data-where="name=北九州市">—</b> 件で、県平均 <b class="v" data-fmt="n2" data-source="prefrates" data-field="total" data-row="0">—</b> 件を下回る。県内 <b class="v" data-fmt="int" data-source="kkrank" data-field="n_all" data-row="0">—</b> 市町村の中で <b class="v" data-fmt="int" data-source="kkrank" data-field="rank_all" data-row="0">—</b> 番目、人口10万人以上の <b class="v" data-fmt="int" data-source="kkrank" data-field="n_big" data-row="0">—</b> 市の中では <b class="v" data-fmt="int" data-source="kkrank" data-field="rank_big" data-row="0">—</b> 番目である。罪種別では知能犯（県の <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=知能犯">—</b> 倍）や風俗犯（<b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=風俗犯">—</b> 倍）が県平均を上回るが、粗暴犯は <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=粗暴犯">—</b> 倍でほぼ県並み、件数の最も多い窃盗犯は <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=窃盗犯">—</b> 倍で県平均を下回る。</p>
     <div class="kq-grid">
       <div class="kq-card wide">
         <h3 id="muni-title">市町村別、人口千人当たり認知件数（2025年）</h3>
