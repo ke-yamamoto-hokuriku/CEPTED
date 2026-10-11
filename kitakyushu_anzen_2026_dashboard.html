@@ -12,7 +12,7 @@
 <style>
 :root {
   --color-bg: #faf8f4; --color-panel: #ffffff; --color-fg: #24211d; --color-fg-muted: #6b645a;
-  --color-border-line: #e2dcd2; --color-bad: #b0412e; --color-ok: #2f6f4f; --kd-accent: #b0412e;
+  --color-border-line: #e2dcd2; --color-bad: #b0412e; --color-ok: #2f6f4f; --kd-accent: #2f6db5;
   --cds-chart-muted: #b9b2a6; --cds-chart-grid: #ece7de; --cds-chart-axis: #8f887d; --cds-chart-reference: #8f887d;
   --cds-surface-popover: #ffffff; --cds-border: #d8d1c5; --cds-shadow-popover: 0 4px 16px rgba(36,33,29,.12); --cds-text-secondary: #6b645a;
   --font-anthropic-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
@@ -25,7 +25,7 @@
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --color-bg: #1b1a18; --color-panel: #242220; --color-fg: #ece7df; --color-fg-muted: #a8a196;
-  --color-border-line: #3a3733; --color-bad: #e2765e; --color-ok: #7cc49a; --kd-accent: #e2765e;
+  --color-border-line: #3a3733; --color-bad: #e2765e; --color-ok: #7cc49a; --kd-accent: #6ea6e6;
   --cds-chart-muted: #6e6960; --cds-chart-grid: #312e2a; --cds-chart-axis: #8a847a; --cds-chart-reference: #8a847a;
   --cds-surface-popover: #2c2a27; --cds-border: #45413c; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.4); --cds-text-secondary: #a8a196;
   color-scheme: dark; } }
@@ -180,14 +180,14 @@ window.dash = (() => {
     <div class="kq-grid">
       <div class="kq-card">
         <h3 id="pmap-title">県内の地図で見た人口千人当たり認知件数（2018〜2025年）</h3>
-        <p class="note">円の大きさは人口、色はその年の県平均との比を表す。朱色が濃いほど県平均より多く、灰色は県平均より少ない。「再生」を押すと2018年から順に表示する。罪種は「市町村別」のグラフのボタンで切り替わる。北九州市と福岡市は区ごとに示した。</p>
+        <p class="note">円の大きさは人口、色はその年の県平均との比を表す。青が濃いほど県平均より多く、灰色は県平均より少ない。「再生」を押すと2018年から順に表示する。罪種は「市町村別」のグラフのボタンで切り替わる。北九州市と福岡市は区ごとに示した。</p>
         <div class="kq-ctrl"><button class="kq-btn" id="pmap-play" type="button" aria-pressed="false">再生</button><input class="kq-range" id="pmap-range" type="range" min="2018" max="2025" step="1" value="2025" aria-label="年"><span class="kq-yearlab" id="pmap-year">2025年</span></div>
         <div class="kq-chart kq-mapbox" id="pmap-chart" data-source="mapcells"></div>
         <p class="note">人口は2020年と2025年の国勢調査による。2018〜2019年は2020年の人口を用い、2021〜2024年は両年の間を直線で補った。地図：みんなの行政地図</p>
       </div>
       <div class="kq-card">
         <h3 id="muni-title">市町村別、人口千人当たり認知件数（2025年）</h3>
-        <p class="note">縦の破線は県平均である。ボタンで罪種と対象の市町村を切り替えられる。北九州市は朱色、福岡市は濃い灰色で示した。罪種のボタンは地図にも反映される。</p>
+        <p class="note">縦の破線は県平均である。ボタンで罪種と対象の市町村を切り替えられる。北九州市は青、福岡市は濃い灰色で示した。罪種のボタンは地図にも反映される。</p>
         <div class="kq-ctrl">
           <span role="group" aria-label="罪種" class="kq-ctrl">
             <button class="kq-btn" type="button" data-mm="total" aria-pressed="true">刑法犯総数</button>
@@ -237,7 +237,7 @@ window.dash = (() => {
       </div>
       <div class="kq-card wide">
         <h3 id="heat-title">区別・罪種別の認知件数</h3>
-        <p class="note">色が濃いほど値が大きい。「増減」では朱色が増加、灰色が減少を表す。知能犯の多くは詐欺であり、被害者の住む区で認知されることが多いとみられる。</p>
+        <p class="note">色が濃いほど値が大きい。「増減」では青が増加、灰色が減少を表す。知能犯の多くは詐欺であり、被害者の住む区で認知されることが多いとみられる。</p>
         <div class="kq-ctrl" role="group" aria-label="指標">
           <button class="kq-btn" type="button" data-hm="change" aria-pressed="true">増減（2021→2025年）</button>
           <button class="kq-btn" type="button" data-hm="rate" aria-pressed="false">人口千人当たり（2025年）</button>
@@ -289,7 +289,9 @@ window.dash = (() => {
     <div class="kq-hyps three">
       <div class="kq-hyp">
         <span class="h">場所</span>
-        <h3>駅周辺の町丁目への集中</h3>
+        <h3 id="place-title">駅周辺の町丁目への集中</h3>
+        <div class="kq-chart kq-mapbox" id="place-chart" data-source="place_top"></div>
+        <p class="note">件数上位12町丁目（2023〜2025年）を町ごとにまとめ、円の大きさで件数を示した。駅名は、その町にある駅か、すぐ隣の駅である。</p>
         <p>2023〜2025年の件数上位12町丁目のうち、9か所が駅の近くにある。最も多い下曽根新町と湯川新町4丁目の2か所で、区全体の約2割を占める。</p>
       </div>
       <div class="kq-hyp">
@@ -453,6 +455,17 @@ window.dash = (() => {
         METRICS.forEach(m => { o[m] = Math.round(Number(r[m]) / pop * 100000) / 100; o[m + '_ratio'] = Math.round((Number(r[m]) / pop) / (Number(p[m]) / Number(p.pop)) * 100) / 100; });
         return o;
       }).filter(Boolean);
+    }
+  });
+  dash.calc('place_top', {
+    inputs: ['minami_blocks_years', 'minami_towns'], title: '件数上位12町丁目の町別集計',
+    description: '小倉南区の自転車盗（2023〜2025年）の件数上位12町丁目を町ごとにまとめ、地図上の町の位置を付けたもの。',
+    fn: (blocks, towns) => {
+      const sum = d3.rollup(blocks.filter(r => Number(r.year) >= 2023), v => d3.sum(v, r => Number(r.count)), r => r.block);
+      const top = Array.from(sum, ([block, count]) => ({ block, count })).sort((a, b) => b.count - a.count).slice(0, 12);
+      const pos = new Map(towns.map(t => [t.town, t]));
+      const g = d3.rollup(top, v => ({ count: d3.sum(v, r => r.count), blocks: v.map(r => r.block) }), r => r.block.replace(/[０-９0-9]+丁目$/, ''));
+      return Array.from(g, ([town, o]) => { const q = pos.get(town); return q ? { town, count: o.count, blocks: o.blocks.join('・'), fx: Number(q.fx), fy: Number(q.fy) } : null; }).filter(Boolean);
     }
   });
   /* ---------- helpers ---------- */
@@ -981,11 +994,47 @@ window.dash = (() => {
     }).on('pointerleave', () => { tip.hidden = true; });
   }
 
+  const STN = { '下曽根新町': '下曽根駅', '湯川新町': '安部山公園駅', '城野': '城野駅', '北方': '北方駅', '徳力': '徳力公団前駅', '志井': '志井公園駅' };
+  const PLAB = { '富士見': 'l', '城野': 'r', '北方': 'l', '湯川新町': 'd', '下曽根': 'ul', '上葛原': 'r', '下曽根新町': 'd', '徳力': 'r', '志井': 'r' };
+  function drawPlace() {
+    const box = document.getElementById('place-chart');
+    if (!need(box, ['place_top'])) return;
+    const rows = dash.data('place_top').data.map(d => ({ ...d, count: Number(d.count), fx: Number(d.fx), fy: Number(d.fy) }));
+    const M = (window.KQ_MAP || {}).minami; if (!M) return;
+    const x0 = .08, x1 = .86, y0 = .02, y1 = .76;
+    const W = Math.max(260, box.clientWidth), IW = W / (x1 - x0), IH = IW * M.h / M.w, H = Math.round(IH * (y1 - y0));
+    const svg = svgFor(box, W, H, 'place-title').attr('data-w', W).style('overflow', 'hidden');
+    svg.append('image').attr('href', M.src).attr('x', -x0 * IW).attr('y', -y0 * IH).attr('width', IW).attr('height', IH).attr('preserveAspectRatio', 'none').attr('opacity', .9);
+    const px = d => (d.fx - x0) * IW, pyy = d => (d.fy - y0) * IH;
+    const r = d3.scaleSqrt([0, d3.max(rows, d => d.count)], [0, W / 13]);
+    const first = !drawn.place;
+    const c = svg.append('g').selectAll('circle').data(rows.sort((a, b) => b.count - a.count)).join('circle')
+      .attr('cx', px).attr('cy', pyy).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1).attr('fill-opacity', .8)
+      .attr('fill', d => STN[d.town] || d.town === '下曽根' ? C0() : 'var(--color-fg-muted)').attr('r', first && motion ? 0 : d => r(d.count));
+    if (first && motion) c.transition().delay((d, i) => 200 + i * 90).duration(600).ease(d3.easeCubicOut).attr('r', d => r(d.count));
+    const g = svg.append('g').attr('font-size', 'var(--cds-font-size-caption)').attr('paint-order', 'stroke').attr('stroke', 'var(--color-panel)').attr('stroke-width', 3).attr('stroke-linejoin', 'round');
+    rows.forEach(d => {
+      const k = PLAB[d.town] || 'r', rr = r(d.count) + 3;
+      const anc = k === 'l' || k === 'ul' ? 'end' : k === 'r' ? 'start' : 'middle';
+      const x = px(d) + (k === 'ul' ? 4 : k === 'l' ? -rr : k === 'r' ? rr : 0);
+      const y = pyy(d) + (k === 'ul' ? -rr + 2 : k === 'u' ? -rr - (STN[d.town] ? 14 : 2) : k === 'd' ? rr + 11 : 0);
+      const t = g.append('text').attr('x', x).attr('y', y).attr('text-anchor', anc).attr('fill', 'var(--color-fg)');
+      t.append('tspan').attr('font-weight', 700).text(d.town);
+      if (STN[d.town]) t.append('tspan').attr('x', x).attr('dy', '1.15em').attr('fill', C0()).attr('font-size', '.92em').text(STN[d.town]);
+      else if (d.town !== '下曽根') t.attr('fill', 'var(--color-fg-muted)');
+    });
+    const tip = tipFor(box);
+    c.on('pointermove', (ev, d) => {
+      const { sx, sy } = scaleXY(box, W, H);
+      showTip(box, tip, [['t', `${d.town}${STN[d.town] ? '（' + STN[d.town] + '）' : ''}`], [null, `${d.blocks}`], [null, `計 ${d.count}件（2023〜2025年）`]], px(d) * sx, (pyy(d) - r(d.count)) * sy);
+    }).on('pointerleave', () => { tip.hidden = true; });
+    drawn.place = true;
+  }
   dash.onData(() => {
     fillValues();
     drawMuni(false); drawPrefMap(false); drawTypes(); drawShare();
     drawIncrease(); drawStack(); drawHeat();
-    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawLock(); drawHour();
+    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawPlace(); drawLock(); drawHour();
     if (!drawn.link) { const el = location.hash && document.getElementById(location.hash.slice(1)); if (el) { el.scrollIntoView(); drawn.link = true; } }
   });
   root.querySelectorAll('.kq-path a').forEach(a => a.addEventListener('click', ev => { const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) { ev.preventDefault(); el.scrollIntoView({ behavior: motion ? 'smooth' : 'auto' }); dash.setLink(el.id); } }));
