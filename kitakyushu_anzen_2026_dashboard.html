@@ -225,8 +225,13 @@ window.dash = (() => {
     <p class="kq-ans"><span class="tag">結論</span>2021年から2025年にかけて、北九州市の認知件数は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=合計">—</b> 件増えた。このうち知能犯 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=知能犯">—</b> 件、自転車盗 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=自転車盗">—</b> 件、万引き <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=万引き">—</b> 件の三つで、増加分の大半を占める。区別に見ると、知能犯は八幡西区で、自転車盗は小倉北区と小倉南区で大きく増えた。一方、粗暴犯は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=粗暴犯">—</b> 件と減少した。</p>
     <div class="kq-grid">
       <div class="kq-card">
-        <h3 id="inc-title">罪種・手口別の増減（2021→2025年）</h3>
-        <p class="note">北九州市全体の値で、右に伸びる棒が増加、左に伸びる棒が減少を表す。</p>
+        <h3 id="inc-title">罪種・手口別の認知件数（2025年）</h3>
+        <p class="note" id="inc-note">北九州市全体の値である。ボタンで、2025年の件数、2021年から2025年への増減数、増減率を切り替えられる。上位3つを青で示した。件数の少ない罪種は、増減率が大きく出やすい。</p>
+        <div class="kq-ctrl" role="group" aria-label="指標">
+          <button class="kq-btn" type="button" data-im="count" aria-pressed="true">2025年の件数</button>
+          <button class="kq-btn" type="button" data-im="change" aria-pressed="false">増減数</button>
+          <button class="kq-btn" type="button" data-im="rate" aria-pressed="false">増減率</button>
+        </div>
         <div class="kq-chart" id="inc-chart" data-source="increase"></div>
       </div>
       <div class="kq-card">
@@ -379,13 +384,15 @@ window.dash = (() => {
     fn: (census_pop) => census_pop.map(r => ({ year: Number(r.year), share: r3(Number(r.kitakyushu) / Number(r.pref)) }))
   });
   dash.calc('increase', {
-    inputs: ['kk_cats'], title: '罪種・手口別の増減（2021→2025年）',
-    description: '北九州市の2025年の件数から2021年の件数を引いたもの。合計は全罪種の和。',
+    inputs: ['kk_cats'], title: '罪種・手口別の件数と増減（2021→2025年）',
+    description: '北九州市の罪種・手口別の2021年と2025年の件数、その差（増減数）と増減率。合計は全罪種の和。',
     fn: (kk_cats) => {
       const cats = [...new Set(kk_cats.map(r => r.category))];
       const at = (c, y) => Number(kk_cats.find(r => r.category === c && Number(r.year) === y).count);
-      const rows = cats.map(c => ({ category: c, change: at(c, 2025) - at(c, 2021) }));
-      rows.push({ category: '合計', change: rows.reduce((s, r) => s + r.change, 0) });
+      const rows = cats.map(c => ({ category: c, c2021: at(c, 2021), c2025: at(c, 2025), change: at(c, 2025) - at(c, 2021) }));
+      const s21 = d3.sum(rows, r => r.c2021), s25 = d3.sum(rows, r => r.c2025);
+      rows.push({ category: '合計', c2021: s21, c2025: s25, change: s25 - s21 });
+      rows.forEach(r => { r.rate = Math.round((r.c2025 - r.c2021) / r.c2021 * 1000) / 1000; });
       return rows;
     }
   });
@@ -643,26 +650,35 @@ window.dash = (() => {
 
   /* ---------- Q2 ---------- */
   const SHORT = { '凶悪犯・風俗犯・その他': '凶悪・風俗・その他', '乗り物盗（自動車・オートバイ）': '自動車・オートバイ盗' };
+  let im = 'count';
+  const IM = {
+    count: { f: 'c2025', title: '罪種・手口別の認知件数（2025年）', lab: v => fmt.int(v) },
+    change: { f: 'change', title: '罪種・手口別の増減数（2021→2025年）', lab: v => fmt.sint(v) },
+    rate: { f: 'rate', title: '罪種・手口別の増減率（2021→2025年）', lab: v => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.round(Math.abs(v) * 100) + '%' }
+  };
+  root.querySelectorAll('[data-im]').forEach(b => b.addEventListener('click', () => { im = b.getAttribute('data-im'); pressGroup('data-im', im); drawn.inc = false; drawIncrease(); }));
   function drawIncrease() {
     const box = document.getElementById('inc-chart');
     if (!need(box, ['increase'])) return;
-    const rows = dash.data('increase').data.filter(r => r.category !== '合計').slice().sort((a, b) => b.change - a.change);
-    const W = Math.max(280, box.clientWidth), rowH = 26, m = { t: 6, r: 50, b: 6, l: W < 420 ? 120 : 170 }, H = m.t + m.b + rows.length * rowH;
-    const ext = d3.max(rows, r => Math.abs(r.change));
-    const lo = d3.min(rows, r => r.change);
+    const M = IM[im];
+    document.getElementById('inc-title').textContent = M.title;
+    const rows = dash.data('increase').data.filter(r => r.category !== '合計').map(r => ({ category: r.category, v: Number(r[M.f]) })).sort((a, b) => b.v - a.v);
+    const W = Math.max(280, box.clientWidth), rowH = 26, m = { t: 6, r: 56, b: 6, l: W < 420 ? 120 : 170 }, H = m.t + m.b + rows.length * rowH;
+    const ext = d3.max(rows, r => Math.abs(r.v));
+    const lo = d3.min(rows, r => r.v);
     const x = d3.scaleLinear([Math.min(0, lo) * 1.15, ext * 1.1], [m.l, W - m.r]);
     const y = d3.scaleBand(rows.map(r => r.category), [m.t, H - m.b]).padding(.28);
     const svg = svgFor(box, W, H, 'inc-title');
     svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
     const top3 = rows.slice(0, 3).map(r => r.category);
     rows.forEach((r, i) => {
-      const pos = r.change >= 0;
+      const pos = r.v >= 0;
       const hl = top3.includes(r.category);
       text(svg, m.l - 8, y(r.category) + y.bandwidth() / 2 + 4, SHORT[r.category] || r.category, { anchor: 'end', fill: hl ? 'var(--color-fg)' : 'var(--color-fg-muted)', weight: hl ? 600 : 400 });
-      const b = svg.append('rect').attr('x', pos ? x(0) : x(r.change)).attr('y', y(r.category)).attr('height', y.bandwidth()).attr('width', Math.abs(x(r.change) - x(0))).attr('rx', 3)
+      const b = svg.append('rect').attr('x', pos ? x(0) : x(r.v)).attr('y', y(r.category)).attr('height', y.bandwidth()).attr('width', Math.abs(x(r.v) - x(0))).attr('rx', 3)
         .attr('fill', hl ? C0() : MUTED);
       if (!drawn.inc && motion) b.classed(pos ? 'a-growx' : 'a-growxr', true).style('animation-delay', (i * 70) + 'ms');
-      text(svg, pos ? x(r.change) + 5 : x(0) + 5, y(r.category) + y.bandwidth() / 2 + 4, fmt.sint(r.change), { anchor: 'start', fill: 'var(--color-fg)', weight: hl ? 600 : 400 });
+      text(svg, pos ? x(r.v) + 5 : x(0) + 5, y(r.category) + y.bandwidth() / 2 + 4, M.lab(r.v), { anchor: 'start', fill: 'var(--color-fg)', weight: hl ? 600 : 400 });
     });
     drawn.inc = true;
   }
