@@ -65,6 +65,13 @@ window.dash = (() => {
 .kq { --kq-hl: color-mix(in srgb, var(--color-fg) 6%, transparent); font-family: var(--font-anthropic-sans); color: var(--color-fg); display: grid; gap: var(--cds-gap-xl); max-width: 1180px; margin-inline: auto; }
 .kq-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); text-wrap: balance; }
 .kq-head p { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); line-height: 1.7; max-width: 62em; }
+.kq-path { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-xs); margin-top: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); }
+.kq-path a { color: var(--color-fg); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 10px; background: var(--color-panel); font-variant-numeric: tabular-nums; }
+.kq-path a:hover { background: var(--kq-hl); }
+.kq-path a b { font-weight: 600; }
+.kq-path .q { color: var(--kq-c0); font-weight: 600; margin-right: .5em; }
+.kq-path .arr { color: var(--kq-c0); }
+.kq-pathnote { margin: 4px 0 0 !important; font-size: var(--cds-font-size-caption) !important; }
 .kq-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin-top: var(--cds-gap-sm); }
 .kq-nav a { font-size: var(--cds-font-size-caption); color: var(--color-fg); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: var(--cds-pad-xs) var(--cds-pad-sm); background: var(--color-panel); }
 .kq-nav a:hover { background: var(--kq-hl); }
@@ -107,6 +114,19 @@ window.dash = (() => {
 .kq-fail { display: flex; align-items: center; justify-content: center; gap: .5em; min-height: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
 .kq-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
 .kq-lead { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.75; color: var(--color-fg-muted); max-width: 64em; }
+.kq-lead { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.75; color: var(--color-fg-muted); max-width: 64em; }
+.kq-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--cds-gap-sm); counter-reset: none; }
+@media (max-width: 760px) { .kq-steps { grid-template-columns: minmax(0, 1fr); } }
+.kq-step { position: relative; display: grid; gap: 2px; align-content: start; padding: var(--cds-pad-sm) var(--cds-pad-lg) var(--cds-pad-sm) var(--cds-pad-sm); border-radius: var(--cds-radius); border: 1px solid var(--color-border-line); background: var(--color-bg); cursor: pointer; transition: background var(--cds-dur-slow); }
+.kq-step:hover { background: var(--kq-hl); }
+.kq-step:not(:last-child)::after { content: "▶"; position: absolute; right: -.75em; top: 50%; transform: translateY(-50%); font-size: .7rem; color: var(--kq-c0); z-index: 1; }
+@media (max-width: 760px) { .kq-step:not(:last-child)::after { content: "▼"; right: 50%; top: auto; bottom: -1.1em; transform: none; } }
+.kq-step .n { font-size: var(--cds-font-size-caption); font-weight: 600; color: var(--kq-c0); }
+.kq-step .t { font-size: var(--cds-font-size-caption); line-height: 1.55; color: var(--color-fg-muted); }
+.kq-step .t b { display: block; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 1.45rem; color: var(--color-fg); font-variant-numeric: tabular-nums; }
+.kq-step .t b small { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-left: .3em; }
+.kq-step:nth-child(n+2) { border-left: 3px solid var(--kq-c0); }
+.kq-lead { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.75; color: var(--color-fg-muted); max-width: 64em; }
 .kq-flow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: var(--cds-gap-lg); align-items: center; }
 @media (max-width: 760px) { .kq-flow { grid-template-columns: minmax(0, 1fr); } }
 .kq-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--cds-gap-sm); }
@@ -132,7 +152,6 @@ window.dash = (() => {
 @keyframes kq-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 @keyframes kq-growx { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes kq-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes kq-zoom { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes kq-pulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
 </style>
 
@@ -140,23 +159,16 @@ window.dash = (() => {
   <header class="kq-head" id="top">
     <h1>北九州市の治安情勢と小倉南区の自転車盗</h1>
     <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した国勢調査人口をもとに、次の三つの問いについて検討した。</p>
-    <nav class="kq-nav" aria-label="問いへ移動"><a href="#q1">問1　県内で安全ではない都市と言えるか</a><a href="#q2">問2　北九州市で多く発生している犯罪</a><a href="#q3">問3　小倉南区で多発する自転車盗</a></nav>
+    <nav class="kq-path" aria-label="分析の流れ" data-source="flowsteps">
+      <a href="#q1"><span class="q">問1</span>北九州市の刑法犯 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件</a><span class="arr" aria-hidden="true">→</span>
+      <a href="#q2"><span class="q">問2</span>うち自転車盗 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=2">—</span>）</a><span class="arr" aria-hidden="true">→</span>
+      <a href="#q3"><span class="q">問3</span>うち小倉南区 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=3">—</span>）</a><span class="arr" aria-hidden="true">→</span>
+      <a href="#monthly-title">うち曽根交番管内 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=4">—</b>件（2024年は <span class="v" data-fmt="int" data-source="flowsteps" data-field="prev" data-where="step=4">—</span>件）</a>
+    </nav>
+    <p class="kq-pathnote">2025年の件数。件数の多いところへ順に対象を絞って分析した。</p>
   </header>
 
 
-  <section class="kq-card wide" id="flow" aria-labelledby="flow-title">
-    <h3 id="flow-title">この分析の流れ：北九州市全体から小倉南区の自転車盗へ</h3>
-    <p class="note">北九州市の刑法犯（2025年）から、件数の多いところへ段階的に対象を絞っていく。正方形の面積は件数に比例している。段階を選ぶと、その部分が強調される。</p>
-    <div class="kq-flow">
-      <div class="kq-chart" id="flow-chart" data-source="flowsteps" style="min-height: 260px"></div>
-      <ol class="kq-steps" id="flow-steps" data-source="flowsteps">
-        <li class="kq-step" data-step="0"><span class="n">1</span><span class="t"><small>北九州市の刑法犯認知件数</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件　<span class="go" data-go="q1">問1へ</span><small>人口当たりでは県平均並みである。</small></span></li>
-        <li class="kq-step" data-step="1"><span class="n">2</span><span class="t"><small>そのうち自転車盗</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=2">—</span>）　<span class="go" data-go="q2">問2へ</span><small>罪種・手口別で最も件数が多い。</small></span></li>
-        <li class="kq-step" data-step="2"><span class="n">3</span><span class="t"><small>そのうち小倉南区</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=3">—</span>）　<span class="go" data-go="q3">問3へ</span><small>7区の中で最も件数が多い。</small></span></li>
-        <li class="kq-step" data-step="3"><span class="n">4</span><span class="t"><small>そのうち曽根交番管内（下曽根駅周辺）</small><b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=4">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=4">—</span>）　<span class="go" data-go="q3">問3へ</span><small>2024年は <span class="v" data-fmt="int" data-source="flowsteps" data-field="prev" data-where="step=4">—</span> 件で、区内の急増の中心であった。</small></span></li>
-      </ol>
-    </div>
-  </section>
 
   <!-- ===== Q1 ===== -->
   <section class="kq-q" id="q1">
@@ -480,39 +492,6 @@ window.dash = (() => {
   function pressGroup(attr, value) { root.querySelectorAll(`[${attr}]`).forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute(attr) === value))); }
 
 
-  /* ---------- flow ---------- */
-  let flowOn = -1;
-  function drawFlow() {
-    const box = document.getElementById('flow-chart');
-    if (!need(box, ['flowsteps'])) return;
-    const rows = dash.data('flowsteps').data;
-    const W = Math.max(240, box.clientWidth), H = Math.min(320, Math.max(240, W * .75));
-    const side = Math.min(W - 20, H - 20);
-    const s0 = Math.sqrt(rows[0].count);
-    const svg = svgFor(box, W, H, 'flow-title');
-    const x0 = (W - side) / 2, y0 = H - 10;
-    const fills = [MUTED, 'color-mix(in srgb, ' + C0() + ' 35%, var(--color-panel))', 'color-mix(in srgb, ' + C0() + ' 70%, var(--color-panel))', C0()];
-    rows.forEach((r, i) => {
-      const sd = Math.max(4, side * Math.sqrt(r.count) / s0);
-      const rect = svg.append('rect').attr('x', x0).attr('y', y0 - sd).attr('width', sd).attr('height', sd).attr('rx', i ? 3 : 6)
-        .attr('fill', fills[i]).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5)
-        .attr('opacity', flowOn < 0 || flowOn >= i ? 1 : .35).style('cursor', 'pointer')
-        .on('click', () => setFlow(i));
-      if (!drawn.flow && motion) { rect.style('transform-box', 'fill-box').style('transform-origin', '0% 100%').style('animation', `kq-zoom 700ms var(--cds-ease-out) ${i * 350}ms both`); }
-      if (sd > 46) text(svg, x0 + sd - 8, y0 - sd + 18, r.label, { anchor: 'end', fill: i >= 2 ? 'var(--color-panel)' : 'var(--color-fg)', weight: 600 });
-      else text(svg, x0 + sd + 6, y0 - sd / 2 + 4, r.label, { fill: 'var(--color-fg)', weight: 600 });
-    });
-    root.querySelectorAll('#flow-steps .kq-step').forEach(li => li.classList.toggle('on', Number(li.getAttribute('data-step')) === flowOn));
-    drawn.flow = true;
-  }
-  function setFlow(i) { flowOn = flowOn === i ? -1 : i; drawFlow(); }
-  root.querySelectorAll('#flow-steps .kq-step').forEach(li => {
-    li.addEventListener('click', ev => {
-      const go = ev.target.closest('[data-go]');
-      if (go) { const el = document.getElementById(go.getAttribute('data-go')); if (el) { el.scrollIntoView({ behavior: motion ? 'smooth' : 'auto' }); dash.setLink(el.id); } return; }
-      setFlow(Number(li.getAttribute('data-step')));
-    });
-  });
   /* ---------- Q1: municipalities ---------- */
   let mm = 'total', mf = 'big';
   const MLAB = { total: '刑法犯総数', violent: '粗暴犯', theft: '窃盗犯', fraud: '知能犯', bike: '自転車盗' };
@@ -882,13 +861,12 @@ window.dash = (() => {
 
   dash.onData(() => {
     fillValues();
-    drawFlow();
     drawMuni(false); drawTypes(); drawShare();
     drawIncrease(); drawStack(); drawHeat();
     drawKoban(); drawBlocks(false); drawMonthly(); drawLock(); drawHour();
     if (!drawn.link) { const el = location.hash && document.getElementById(location.hash.slice(1)); if (el) { el.scrollIntoView(); drawn.link = true; } }
   });
-  root.querySelectorAll('.kq-nav a').forEach(a => a.addEventListener('click', ev => { const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) { ev.preventDefault(); el.scrollIntoView({ behavior: motion ? 'smooth' : 'auto' }); dash.setLink(el.id); } }));
+  root.querySelectorAll('.kq-path a').forEach(a => a.addEventListener('click', ev => { const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) { ev.preventDefault(); el.scrollIntoView({ behavior: motion ? 'smooth' : 'auto' }); dash.setLink(el.id); } }));
 })();
 </script>
 
