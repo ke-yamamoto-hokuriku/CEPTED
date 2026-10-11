@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>北九州市の治安情勢と小倉南区の自転車盗</title>
+<meta name="description" content="福岡県警察の認知件数統計と犯罪オープンデータ、福岡県公表の国勢調査人口から、北九州市の治安と小倉南区の自転車盗を三つの問いで確かめるダッシュボード（2026年10月、山本啓一）">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root {
+  --color-bg: #faf8f4; --color-panel: #ffffff; --color-fg: #24211d; --color-fg-muted: #6b645a;
+  --color-border-line: #e2dcd2; --color-bad: #b0412e; --color-ok: #2f6f4f; --kd-accent: #b0412e;
+  --cds-chart-muted: #b9b2a6; --cds-chart-grid: #ece7de; --cds-chart-axis: #8f887d; --cds-chart-reference: #8f887d;
+  --cds-surface-popover: #ffffff; --cds-border: #d8d1c5; --cds-shadow-popover: 0 4px 16px rgba(36,33,29,.12); --cds-text-secondary: #6b645a;
+  --font-anthropic-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-anthropic-serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --cds-font-size-caption: .78rem; --cds-font-size-body: .92rem; --cds-font-size-heading: 1.02rem; --cds-font-size-title: 1.9rem;
+  --cds-font-weight-medium: 600;
+  --cds-gap-xs: .3rem; --cds-gap-sm: .6rem; --cds-gap-md: 1rem; --cds-gap-lg: 1.4rem; --cds-gap-xl: 2.2rem;
+  --cds-pad-xs: .3rem; --cds-pad-sm: .6rem; --cds-pad-lg: 1.2rem; --cds-radius: 8px;
+  --cds-dur-slow: 400ms; --cds-ease-out: cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --color-bg: #1b1a18; --color-panel: #242220; --color-fg: #ece7df; --color-fg-muted: #a8a196;
+  --color-border-line: #3a3733; --color-bad: #e2765e; --color-ok: #7cc49a; --kd-accent: #e2765e;
+  --cds-chart-muted: #6e6960; --cds-chart-grid: #312e2a; --cds-chart-axis: #8a847a; --cds-chart-reference: #8a847a;
+  --cds-surface-popover: #2c2a27; --cds-border: #45413c; --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.4); --cds-text-secondary: #a8a196;
+  color-scheme: dark; } }
+html { background: var(--color-bg); }
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); padding: 2rem clamp(16px, 4vw, 48px) 3rem; }
+.dash-skeleton { background: linear-gradient(90deg, var(--cds-chart-grid), transparent, var(--cds-chart-grid)); background-size: 200% 100%; border-radius: var(--cds-radius); }
+@media (prefers-reduced-motion: no-preference) { .dash-skeleton { animation: kd-shimmer 1.4s linear infinite; } }
+@keyframes kd-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+</style>
+<script>
+window.dash = (() => {
+  const raw = {"muni2025": [{"name": "大牟田市", "kind": "市", "pop": 101874, "total": 876, "violent": 89, "theft": 583, "fraud": 47, "bike": 181}, {"name": "久留米市", "kind": "市", "pop": 296599, "total": 2295, "violent": 259, "theft": 1568, "fraud": 119, "bike": 628}, {"name": "直方市", "kind": "市", "pop": 53586, "total": 500, "violent": 51, "theft": 325, "fraud": 42, "bike": 75}, {"name": "飯塚市", "kind": "市", "pop": 122190, "total": 866, "violent": 100, "theft": 531, "fraud": 100, "bike": 142}, {"name": "田川市", "kind": "市", "pop": 44206, "total": 363, "violent": 42, "theft": 236, "fraud": 18, "bike": 32}, {"name": "柳川市", "kind": "市", "pop": 60427, "total": 298, "violent": 27, "theft": 200, "fraud": 14, "bike": 51}, {"name": "八女市", "kind": "市", "pop": 57318, "total": 270, "violent": 18, "theft": 165, "fraud": 49, "bike": 28}, {"name": "筑後市", "kind": "市", "pop": 47668, "total": 236, "violent": 23, "theft": 155, "fraud": 27, "bike": 66}, {"name": "大川市", "kind": "市", "pop": 29705, "total": 179, "violent": 11, "theft": 114, "fraud": 20, "bike": 15}, {"name": "行橋市", "kind": "市", "pop": 70046, "total": 455, "violent": 43, "theft": 315, "fraud": 33, "bike": 108}, {"name": "豊前市", "kind": "市", "pop": 22253, "total": 139, "violent": 11, "theft": 88, "fraud": 3, "bike": 32}, {"name": "中間市", "kind": "市", "pop": 38408, "total": 316, "violent": 19, "theft": 223, "fraud": 33, "bike": 124}, {"name": "小郡市", "kind": "市", "pop": 58390, "total": 319, "violent": 36, "theft": 184, "fraud": 53, "bike": 83}, {"name": "筑紫野市", "kind": "市", "pop": 105844, "total": 723, "violent": 37, "theft": 506, "fraud": 53, "bike": 228}, {"name": "春日市", "kind": "市", "pop": 108955, "total": 608, "violent": 35, "theft": 417, "fraud": 86, "bike": 211}, {"name": "大野城市", "kind": "市", "pop": 103552, "total": 643, "violent": 33, "theft": 419, "fraud": 101, "bike": 204}, {"name": "宗像市", "kind": "市", "pop": 96873, "total": 375, "violent": 27, "theft": 266, "fraud": 22, "bike": 75}, {"name": "太宰府市", "kind": "市", "pop": 72777, "total": 355, "violent": 14, "theft": 244, "fraud": 29, "bike": 118}, {"name": "古賀市", "kind": "市", "pop": 58311, "total": 346, "violent": 21, "theft": 242, "fraud": 34, "bike": 92}, {"name": "福津市", "kind": "市", "pop": 69013, "total": 361, "violent": 21, "theft": 257, "fraud": 14, "bike": 109}, {"name": "うきは市", "kind": "市", "pop": 25921, "total": 103, "violent": 7, "theft": 73, "fraud": 4, "bike": 15}, {"name": "宮若市", "kind": "市", "pop": 24070, "total": 127, "violent": 9, "theft": 88, "fraud": 13, "bike": 7}, {"name": "嘉麻市", "kind": "市", "pop": 31871, "total": 226, "violent": 27, "theft": 139, "fraud": 9, "bike": 9}, {"name": "朝倉市", "kind": "市", "pop": 47362, "total": 328, "violent": 30, "theft": 221, "fraud": 32, "bike": 49}, {"name": "みやま市", "kind": "市", "pop": 32979, "total": 151, "violent": 11, "theft": 104, "fraud": 18, "bike": 21}, {"name": "糸島市", "kind": "市", "pop": 100614, "total": 453, "violent": 49, "theft": 276, "fraud": 34, "bike": 82}, {"name": "那珂川市", "kind": "市", "pop": 47766, "total": 334, "violent": 27, "theft": 197, "fraud": 59, "bike": 68}, {"name": "宇美町", "kind": "町村", "pop": 37212, "total": 125, "violent": 23, "theft": 76, "fraud": 15, "bike": 28}, {"name": "篠栗町", "kind": "町村", "pop": 31088, "total": 143, "violent": 12, "theft": 88, "fraud": 14, "bike": 33}, {"name": "志免町", "kind": "町村", "pop": 45383, "total": 303, "violent": 27, "theft": 216, "fraud": 20, "bike": 59}, {"name": "須恵町", "kind": "町村", "pop": 29051, "total": 213, "violent": 14, "theft": 163, "fraud": 15, "bike": 82}, {"name": "新宮町", "kind": "町村", "pop": 32185, "total": 308, "violent": 17, "theft": 236, "fraud": 22, "bike": 92}, {"name": "久山町", "kind": "町村", "pop": 9246, "total": 52, "violent": 5, "theft": 39, "fraud": 3, "bike": 3}, {"name": "粕屋町", "kind": "町村", "pop": 48490, "total": 528, "violent": 26, "theft": 428, "fraud": 29, "bike": 227}, {"name": "芦屋町", "kind": "町村", "pop": 12289, "total": 70, "violent": 7, "theft": 35, "fraud": 14, "bike": 4}, {"name": "水巻町", "kind": "町村", "pop": 27627, "total": 225, "violent": 12, "theft": 150, "fraud": 28, "bike": 50}, {"name": "岡垣町", "kind": "町村", "pop": 30410, "total": 134, "violent": 9, "theft": 87, "fraud": 25, "bike": 17}, {"name": "遠賀町", "kind": "町村", "pop": 18391, "total": 103, "violent": 10, "theft": 60, "fraud": 21, "bike": 19}, {"name": "小竹町", "kind": "町村", "pop": 6527, "total": 47, "violent": 2, "theft": 36, "fraud": 4, "bike": 9}, {"name": "鞍手町", "kind": "町村", "pop": 14022, "total": 89, "violent": 5, "theft": 66, "fraud": 11, "bike": 19}, {"name": "桂川町", "kind": "町村", "pop": 12203, "total": 76, "violent": 5, "theft": 58, "fraud": 10, "bike": 9}, {"name": "筑前町", "kind": "町村", "pop": 30863, "total": 120, "violent": 15, "theft": 68, "fraud": 10, "bike": 23}, {"name": "東峰村", "kind": "町村", "pop": 1616, "total": 10, "violent": 1, "theft": 4, "fraud": 2, "bike": 0}, {"name": "大刀洗町", "kind": "町村", "pop": 15784, "total": 75, "violent": 10, "theft": 50, "fraud": 13, "bike": 18}, {"name": "大木町", "kind": "町村", "pop": 13166, "total": 63, "violent": 2, "theft": 52, "fraud": 5, "bike": 11}, {"name": "広川町", "kind": "町村", "pop": 19249, "total": 86, "violent": 9, "theft": 57, "fraud": 14, "bike": 17}, {"name": "香春町", "kind": "町村", "pop": 9332, "total": 54, "violent": 7, "theft": 28, "fraud": 8, "bike": 4}, {"name": "添田町", "kind": "町村", "pop": 7617, "total": 51, "violent": 2, "theft": 37, "fraud": 3, "bike": 1}, {"name": "糸田町", "kind": "町村", "pop": 7542, "total": 30, "violent": 6, "theft": 11, "fraud": 2, "bike": 3}, {"name": "川崎町", "kind": "町村", "pop": 13461, "total": 107, "violent": 10, "theft": 80, "fraud": 3, "bike": 7}, {"name": "大任町", "kind": "町村", "pop": 4772, "total": 36, "violent": 4, "theft": 23, "fraud": 1, "bike": 1}, {"name": "赤村", "kind": "町村", "pop": 2492, "total": 9, "violent": 2, "theft": 4, "fraud": 1, "bike": 0}, {"name": "福智町", "kind": "町村", "pop": 19849, "total": 106, "violent": 15, "theft": 53, "fraud": 11, "bike": 7}, {"name": "苅田町", "kind": "町村", "pop": 37952, "total": 354, "violent": 34, "theft": 249, "fraud": 22, "bike": 86}, {"name": "みやこ町", "kind": "町村", "pop": 16721, "total": 72, "violent": 3, "theft": 45, "fraud": 3, "bike": 3}, {"name": "吉富町", "kind": "町村", "pop": 6247, "total": 55, "violent": 6, "theft": 36, "fraud": 1, "bike": 18}, {"name": "上毛町", "kind": "町村", "pop": 6675, "total": 28, "violent": 2, "theft": 13, "fraud": 2, "bike": 0}, {"name": "築上町", "kind": "町村", "pop": 15360, "total": 74, "violent": 10, "theft": 39, "fraud": 9, "bike": 12}, {"name": "北九州市", "kind": "政令市", "pop": 903592, "total": 6743, "violent": 598, "theft": 4229, "fraud": 813, "bike": 1312}, {"name": "福岡市", "kind": "政令市", "pop": 1662793, "total": 15675, "violent": 1234, "theft": 10803, "fraud": 1383, "bike": 5007}], "pref2025": [{"name": "福岡県", "pop": 5077785, "total": 38577, "violent": 3239, "theft": 25770, "fraud": 3648, "bike": 10034}], "share_years": [{"year": 2008, "kitakyushu": 17639, "pref": 90356}, {"year": 2009, "kitakyushu": 16670, "pref": 86057}, {"year": 2010, "kitakyushu": 15295, "pref": 78809}, {"year": 2011, "kitakyushu": 14043, "pref": 73421}, {"year": 2012, "kitakyushu": 12409, "pref": 72240}, {"year": 2013, "kitakyushu": 12372, "pref": 66794}, {"year": 2014, "kitakyushu": 11267, "pref": 63259}, {"year": 2015, "kitakyushu": 9682, "pref": 54663}, {"year": 2016, "kitakyushu": 8124, "pref": 46619}, {"year": 2017, "kitakyushu": 7570, "pref": 42126}, {"year": 2018, "kitakyushu": 6504, "pref": 36701}, {"year": 2019, "kitakyushu": 6127, "pref": 34520}, {"year": 2020, "kitakyushu": 5145, "pref": 27627}, {"year": 2021, "kitakyushu": 5109, "pref": 26337}, {"year": 2022, "kitakyushu": 5452, "pref": 28773}, {"year": 2023, "kitakyushu": 6044, "pref": 33284}, {"year": 2024, "kitakyushu": 6482, "pref": 37047}, {"year": 2025, "kitakyushu": 6743, "pref": 38577}], "census_pop": [{"year": 2010, "kitakyushu": 976846, "pref": 5071968}, {"year": 2015, "kitakyushu": 961286, "pref": 5101556}, {"year": 2020, "kitakyushu": 939029, "pref": 5135214}, {"year": 2025, "kitakyushu": 903592, "pref": 5077785}], "types2025": [{"type": "凶悪犯", "group": "罪種", "kitakyushu": 62, "pref": 310}, {"type": "粗暴犯", "group": "罪種", "kitakyushu": 598, "pref": 3239}, {"type": "窃盗犯", "group": "罪種", "kitakyushu": 4229, "pref": 25770}, {"type": "知能犯", "group": "罪種", "kitakyushu": 813, "pref": 3648}, {"type": "風俗犯", "group": "罪種", "kitakyushu": 178, "pref": 855}, {"type": "その他", "group": "罪種", "kitakyushu": 863, "pref": 4755}, {"type": "自転車盗", "group": "手口", "kitakyushu": 1312, "pref": 10034}, {"type": "万引き", "group": "手口", "kitakyushu": 1199, "pref": 6047}, {"type": "侵入盗（空き巣・忍込み・居空き）", "group": "手口", "kitakyushu": 119, "pref": 735}, {"type": "車上ねらい", "group": "手口", "kitakyushu": 173, "pref": 852}], "kk_cats": [{"year": 2019, "category": "自転車盗", "count": 903}, {"year": 2019, "category": "万引き", "count": 812}, {"year": 2019, "category": "侵入盗", "count": 251}, {"year": 2019, "category": "乗り物盗（自動車・オートバイ）", "count": 83}, {"year": 2019, "category": "車上ねらい等", "count": 362}, {"year": 2019, "category": "その他の窃盗", "count": 1423}, {"year": 2019, "category": "知能犯", "count": 219}, {"year": 2019, "category": "粗暴犯", "count": 826}, {"year": 2019, "category": "凶悪犯・風俗犯・その他", "count": 1248}, {"year": 2020, "category": "自転車盗", "count": 654}, {"year": 2020, "category": "万引き", "count": 870}, {"year": 2020, "category": "侵入盗", "count": 172}, {"year": 2020, "category": "乗り物盗（自動車・オートバイ）", "count": 47}, {"year": 2020, "category": "車上ねらい等", "count": 216}, {"year": 2020, "category": "その他の窃盗", "count": 1061}, {"year": 2020, "category": "知能犯", "count": 249}, {"year": 2020, "category": "粗暴犯", "count": 790}, {"year": 2020, "category": "凶悪犯・風俗犯・その他", "count": 1086}, {"year": 2021, "category": "自転車盗", "count": 776}, {"year": 2021, "category": "万引き", "count": 899}, {"year": 2021, "category": "侵入盗", "count": 136}, {"year": 2021, "category": "乗り物盗（自動車・オートバイ）", "count": 61}, {"year": 2021, "category": "車上ねらい等", "count": 259}, {"year": 2021, "category": "その他の窃盗", "count": 1047}, {"year": 2021, "category": "知能犯", "count": 193}, {"year": 2021, "category": "粗暴犯", "count": 699}, {"year": 2021, "category": "凶悪犯・風俗犯・その他", "count": 1039}, {"year": 2022, "category": "自転車盗", "count": 950}, {"year": 2022, "category": "万引き", "count": 836}, {"year": 2022, "category": "侵入盗", "count": 146}, {"year": 2022, "category": "乗り物盗（自動車・オートバイ）", "count": 43}, {"year": 2022, "category": "車上ねらい等", "count": 258}, {"year": 2022, "category": "その他の窃盗", "count": 1011}, {"year": 2022, "category": "知能犯", "count": 347}, {"year": 2022, "category": "粗暴犯", "count": 768}, {"year": 2022, "category": "凶悪犯・風俗犯・その他", "count": 1093}, {"year": 2023, "category": "自転車盗", "count": 1065}, {"year": 2023, "category": "万引き", "count": 932}, {"year": 2023, "category": "侵入盗", "count": 242}, {"year": 2023, "category": "乗り物盗（自動車・オートバイ）", "count": 51}, {"year": 2023, "category": "車上ねらい等", "count": 175}, {"year": 2023, "category": "その他の窃盗", "count": 1129}, {"year": 2023, "category": "知能犯", "count": 443}, {"year": 2023, "category": "粗暴犯", "count": 762}, {"year": 2023, "category": "凶悪犯・風俗犯・その他", "count": 1245}, {"year": 2024, "category": "自転車盗", "count": 1353}, {"year": 2024, "category": "万引き", "count": 1081}, {"year": 2024, "category": "侵入盗", "count": 205}, {"year": 2024, "category": "乗り物盗（自動車・オートバイ）", "count": 76}, {"year": 2024, "category": "車上ねらい等", "count": 222}, {"year": 2024, "category": "その他の窃盗", "count": 1126}, {"year": 2024, "category": "知能犯", "count": 627}, {"year": 2024, "category": "粗暴犯", "count": 678}, {"year": 2024, "category": "凶悪犯・風俗犯・その他", "count": 1114}, {"year": 2025, "category": "自転車盗", "count": 1312}, {"year": 2025, "category": "万引き", "count": 1199}, {"year": 2025, "category": "侵入盗", "count": 119}, {"year": 2025, "category": "乗り物盗（自動車・オートバイ）", "count": 110}, {"year": 2025, "category": "車上ねらい等", "count": 263}, {"year": 2025, "category": "その他の窃盗", "count": 1226}, {"year": 2025, "category": "知能犯", "count": 813}, {"year": 2025, "category": "粗暴犯", "count": 598}, {"year": 2025, "category": "凶悪犯・風俗犯・その他", "count": 1103}], "ward_cats": [{"ward": "門司区", "category": "自転車盗", "c2021": 28, "c2025": 55, "pop": 87263}, {"ward": "門司区", "category": "万引き", "c2021": 52, "c2025": 119, "pop": 87263}, {"ward": "門司区", "category": "侵入盗", "c2021": 21, "c2025": 11, "pop": 87263}, {"ward": "門司区", "category": "乗り物盗（自動車・オートバイ）", "c2021": 1, "c2025": 4, "pop": 87263}, {"ward": "門司区", "category": "車上ねらい等", "c2021": 14, "c2025": 14, "pop": 87263}, {"ward": "門司区", "category": "その他の窃盗", "c2021": 90, "c2025": 78, "pop": 87263}, {"ward": "門司区", "category": "知能犯", "c2021": 15, "c2025": 91, "pop": 87263}, {"ward": "門司区", "category": "粗暴犯", "c2021": 46, "c2025": 66, "pop": 87263}, {"ward": "門司区", "category": "凶悪犯・風俗犯・その他", "c2021": 93, "c2025": 101, "pop": 87263}, {"ward": "若松区", "category": "自転車盗", "c2021": 49, "c2025": 69, "pop": 76481}, {"ward": "若松区", "category": "万引き", "c2021": 55, "c2025": 51, "pop": 76481}, {"ward": "若松区", "category": "侵入盗", "c2021": 16, "c2025": 11, "pop": 76481}, {"ward": "若松区", "category": "乗り物盗（自動車・オートバイ）", "c2021": 3, "c2025": 11, "pop": 76481}, {"ward": "若松区", "category": "車上ねらい等", "c2021": 14, "c2025": 13, "pop": 76481}, {"ward": "若松区", "category": "その他の窃盗", "c2021": 68, "c2025": 73, "pop": 76481}, {"ward": "若松区", "category": "知能犯", "c2021": 17, "c2025": 40, "pop": 76481}, {"ward": "若松区", "category": "粗暴犯", "c2021": 47, "c2025": 44, "pop": 76481}, {"ward": "若松区", "category": "凶悪犯・風俗犯・その他", "c2021": 97, "c2025": 50, "pop": 76481}, {"ward": "戸畑区", "category": "自転車盗", "c2021": 74, "c2025": 99, "pop": 54025}, {"ward": "戸畑区", "category": "万引き", "c2021": 54, "c2025": 60, "pop": 54025}, {"ward": "戸畑区", "category": "侵入盗", "c2021": 9, "c2025": 5, "pop": 54025}, {"ward": "戸畑区", "category": "乗り物盗（自動車・オートバイ）", "c2021": 4, "c2025": 8, "pop": 54025}, {"ward": "戸畑区", "category": "車上ねらい等", "c2021": 10, "c2025": 13, "pop": 54025}, {"ward": "戸畑区", "category": "その他の窃盗", "c2021": 72, "c2025": 64, "pop": 54025}, {"ward": "戸畑区", "category": "知能犯", "c2021": 21, "c2025": 26, "pop": 54025}, {"ward": "戸畑区", "category": "粗暴犯", "c2021": 27, "c2025": 34, "pop": 54025}, {"ward": "戸畑区", "category": "凶悪犯・風俗犯・その他", "c2021": 68, "c2025": 64, "pop": 54025}, {"ward": "小倉北区", "category": "自転車盗", "c2021": 186, "c2025": 366, "pop": 179983}, {"ward": "小倉北区", "category": "万引き", "c2021": 361, "c2025": 426, "pop": 179983}, {"ward": "小倉北区", "category": "侵入盗", "c2021": 37, "c2025": 22, "pop": 179983}, {"ward": "小倉北区", "category": "乗り物盗（自動車・オートバイ）", "c2021": 16, "c2025": 45, "pop": 179983}, {"ward": "小倉北区", "category": "車上ねらい等", "c2021": 114, "c2025": 83, "pop": 179983}, {"ward": "小倉北区", "category": "その他の窃盗", "c2021": 374, "c2025": 451, "pop": 179983}, {"ward": "小倉北区", "category": "知能犯", "c2021": 55, "c2025": 115, "pop": 179983}, {"ward": "小倉北区", "category": "粗暴犯", "c2021": 244, "c2025": 196, "pop": 179983}, {"ward": "小倉北区", "category": "凶悪犯・風俗犯・その他", "c2021": 306, "c2025": 351, "pop": 179983}, {"ward": "小倉南区", "category": "自転車盗", "c2021": 222, "c2025": 387, "pop": 202676}, {"ward": "小倉南区", "category": "万引き", "c2021": 158, "c2025": 222, "pop": 202676}, {"ward": "小倉南区", "category": "侵入盗", "c2021": 10, "c2025": 31, "pop": 202676}, {"ward": "小倉南区", "category": "乗り物盗（自動車・オートバイ）", "c2021": 17, "c2025": 31, "pop": 202676}, {"ward": "小倉南区", "category": "車上ねらい等", "c2021": 45, "c2025": 59, "pop": 202676}, {"ward": "小倉南区", "category": "その他の窃盗", "c2021": 134, "c2025": 228, "pop": 202676}, {"ward": "小倉南区", "category": "知能犯", "c2021": 33, "c2025": 176, "pop": 202676}, {"ward": "小倉南区", "category": "粗暴犯", "c2021": 108, "c2025": 108, "pop": 202676}, {"ward": "小倉南区", "category": "凶悪犯・風俗犯・その他", "c2021": 170, "c2025": 222, "pop": 202676}, {"ward": "八幡東区", "category": "自転車盗", "c2021": 13, "c2025": 51, "pop": 60918}, {"ward": "八幡東区", "category": "万引き", "c2021": 55, "c2025": 141, "pop": 60918}, {"ward": "八幡東区", "category": "侵入盗", "c2021": 5, "c2025": 10, "pop": 60918}, {"ward": "八幡東区", "category": "乗り物盗（自動車・オートバイ）", "c2021": 3, "c2025": 3, "pop": 60918}, {"ward": "八幡東区", "category": "車上ねらい等", "c2021": 13, "c2025": 14, "pop": 60918}, {"ward": "八幡東区", "category": "その他の窃盗", "c2021": 81, "c2025": 81, "pop": 60918}, {"ward": "八幡東区", "category": "知能犯", "c2021": 23, "c2025": 54, "pop": 60918}, {"ward": "八幡東区", "category": "粗暴犯", "c2021": 45, "c2025": 17, "pop": 60918}, {"ward": "八幡東区", "category": "凶悪犯・風俗犯・その他", "c2021": 68, "c2025": 71, "pop": 60918}, {"ward": "八幡西区", "category": "自転車盗", "c2021": 204, "c2025": 285, "pop": 242246}, {"ward": "八幡西区", "category": "万引き", "c2021": 164, "c2025": 180, "pop": 242246}, {"ward": "八幡西区", "category": "侵入盗", "c2021": 38, "c2025": 29, "pop": 242246}, {"ward": "八幡西区", "category": "乗り物盗（自動車・オートバイ）", "c2021": 17, "c2025": 8, "pop": 242246}, {"ward": "八幡西区", "category": "車上ねらい等", "c2021": 49, "c2025": 67, "pop": 242246}, {"ward": "八幡西区", "category": "その他の窃盗", "c2021": 228, "c2025": 251, "pop": 242246}, {"ward": "八幡西区", "category": "知能犯", "c2021": 29, "c2025": 311, "pop": 242246}, {"ward": "八幡西区", "category": "粗暴犯", "c2021": 182, "c2025": 133, "pop": 242246}, {"ward": "八幡西区", "category": "凶悪犯・風俗犯・その他", "c2021": 237, "c2025": 244, "pop": 242246}], "minami_koban": [{"year": 2019, "koban": "北方", "count": 101}, {"year": 2019, "koban": "吉田", "count": 10}, {"year": 2019, "koban": "守恒", "count": 23}, {"year": 2019, "koban": "徳力", "count": 46}, {"year": 2019, "koban": "曽根", "count": 36}, {"year": 2019, "koban": "朽網", "count": 3}, {"year": 2019, "koban": "東谷", "count": 1}, {"year": 2019, "koban": "石田", "count": 15}, {"year": 2019, "koban": "葛原", "count": 41}, {"year": 2019, "koban": "長行", "count": 3}, {"year": 2020, "koban": "北方", "count": 60}, {"year": 2020, "koban": "吉田", "count": 5}, {"year": 2020, "koban": "守恒", "count": 7}, {"year": 2020, "koban": "徳力", "count": 35}, {"year": 2020, "koban": "曽根", "count": 29}, {"year": 2020, "koban": "朽網", "count": 3}, {"year": 2020, "koban": "石田", "count": 6}, {"year": 2020, "koban": "葛原", "count": 36}, {"year": 2020, "koban": "長行", "count": 3}, {"year": 2021, "koban": "北方", "count": 90}, {"year": 2021, "koban": "吉田", "count": 6}, {"year": 2021, "koban": "守恒", "count": 9}, {"year": 2021, "koban": "徳力", "count": 24}, {"year": 2021, "koban": "曽根", "count": 31}, {"year": 2021, "koban": "朽網", "count": 4}, {"year": 2021, "koban": "石田", "count": 6}, {"year": 2021, "koban": "葛原", "count": 50}, {"year": 2021, "koban": "長行", "count": 2}, {"year": 2022, "koban": "不明", "count": 1}, {"year": 2022, "koban": "北方", "count": 91}, {"year": 2022, "koban": "吉田", "count": 5}, {"year": 2022, "koban": "守恒", "count": 12}, {"year": 2022, "koban": "徳力", "count": 31}, {"year": 2022, "koban": "曽根", "count": 38}, {"year": 2022, "koban": "朽網", "count": 4}, {"year": 2022, "koban": "東谷", "count": 1}, {"year": 2022, "koban": "石田", "count": 9}, {"year": 2022, "koban": "葛原", "count": 48}, {"year": 2022, "koban": "長行", "count": 8}, {"year": 2023, "koban": "不明", "count": 1}, {"year": 2023, "koban": "北方", "count": 113}, {"year": 2023, "koban": "吉田", "count": 7}, {"year": 2023, "koban": "守恒", "count": 23}, {"year": 2023, "koban": "徳力", "count": 48}, {"year": 2023, "koban": "曽根", "count": 44}, {"year": 2023, "koban": "朽網", "count": 3}, {"year": 2023, "koban": "東谷", "count": 4}, {"year": 2023, "koban": "石田", "count": 29}, {"year": 2023, "koban": "葛原", "count": 63}, {"year": 2023, "koban": "長行", "count": 10}, {"year": 2024, "koban": "北方", "count": 117}, {"year": 2024, "koban": "吉田", "count": 28}, {"year": 2024, "koban": "守恒", "count": 25}, {"year": 2024, "koban": "徳力", "count": 71}, {"year": 2024, "koban": "曽根", "count": 120}, {"year": 2024, "koban": "朽網", "count": 3}, {"year": 2024, "koban": "東谷", "count": 2}, {"year": 2024, "koban": "石田", "count": 13}, {"year": 2024, "koban": "葛原", "count": 95}, {"year": 2024, "koban": "長行", "count": 12}, {"year": 2025, "koban": "北方", "count": 113}, {"year": 2025, "koban": "吉田", "count": 13}, {"year": 2025, "koban": "守恒", "count": 13}, {"year": 2025, "koban": "徳力", "count": 68}, {"year": 2025, "koban": "曽根", "count": 55}, {"year": 2025, "koban": "朽網", "count": 4}, {"year": 2025, "koban": "石田", "count": 29}, {"year": 2025, "koban": "葛原", "count": 86}, {"year": 2025, "koban": "長行", "count": 6}], "minami_lock": [{"year": 2019, "lock": "施錠", "count": 123}, {"year": 2019, "lock": "無施錠", "count": 156}, {"year": 2020, "lock": "施錠", "count": 90}, {"year": 2020, "lock": "無施錠", "count": 94}, {"year": 2021, "lock": "施錠", "count": 80}, {"year": 2021, "lock": "無施錠", "count": 142}, {"year": 2022, "lock": "施錠", "count": 74}, {"year": 2022, "lock": "無施錠", "count": 174}, {"year": 2023, "lock": "施錠", "count": 112}, {"year": 2023, "lock": "無施錠", "count": 233}, {"year": 2024, "lock": "施錠", "count": 137}, {"year": 2024, "lock": "無施錠", "count": 349}, {"year": 2025, "lock": "施錠", "count": 122}, {"year": 2025, "lock": "無施錠", "count": 265}], "minami_victim": [{"year": 2019, "occupation": "その他", "count": 72}, {"year": 2019, "occupation": "中学生", "count": 36}, {"year": 2019, "occupation": "大学生", "count": 73}, {"year": 2019, "occupation": "小学生", "count": 22}, {"year": 2019, "occupation": "高校生", "count": 76}, {"year": 2020, "occupation": "その他", "count": 61}, {"year": 2020, "occupation": "中学生", "count": 22}, {"year": 2020, "occupation": "大学生", "count": 39}, {"year": 2020, "occupation": "小学生", "count": 6}, {"year": 2020, "occupation": "法人・団体、被害者なし", "count": 3}, {"year": 2020, "occupation": "高校生", "count": 53}, {"year": 2021, "occupation": "その他", "count": 67}, {"year": 2021, "occupation": "中学生", "count": 30}, {"year": 2021, "occupation": "大学生", "count": 59}, {"year": 2021, "occupation": "小学生", "count": 6}, {"year": 2021, "occupation": "高校生", "count": 60}, {"year": 2022, "occupation": "その他", "count": 72}, {"year": 2022, "occupation": "中学生", "count": 29}, {"year": 2022, "occupation": "大学生", "count": 59}, {"year": 2022, "occupation": "小学生", "count": 10}, {"year": 2022, "occupation": "高校生", "count": 78}, {"year": 2023, "occupation": "その他", "count": 110}, {"year": 2023, "occupation": "中学生", "count": 30}, {"year": 2023, "occupation": "大学生", "count": 88}, {"year": 2023, "occupation": "小学生", "count": 18}, {"year": 2023, "occupation": "高校生", "count": 99}, {"year": 2024, "occupation": "その他", "count": 136}, {"year": 2024, "occupation": "中学生", "count": 77}, {"year": 2024, "occupation": "大学生", "count": 99}, {"year": 2024, "occupation": "小学生", "count": 22}, {"year": 2024, "occupation": "法人・団体、被害者なし", "count": 1}, {"year": 2024, "occupation": "高校生", "count": 151}, {"year": 2025, "occupation": "その他", "count": 129}, {"year": 2025, "occupation": "中学生", "count": 58}, {"year": 2025, "occupation": "大学生", "count": 70}, {"year": 2025, "occupation": "小学生", "count": 26}, {"year": 2025, "occupation": "高校生", "count": 104}], "minami_hour": [{"hour": 0, "count": 15}, {"hour": 1, "count": 10}, {"hour": 2, "count": 4}, {"hour": 3, "count": 3}, {"hour": 4, "count": 1}, {"hour": 5, "count": 7}, {"hour": 6, "count": 45}, {"hour": 7, "count": 121}, {"hour": 8, "count": 98}, {"hour": 9, "count": 40}, {"hour": 10, "count": 60}, {"hour": 11, "count": 28}, {"hour": 12, "count": 69}, {"hour": 13, "count": 48}, {"hour": 14, "count": 39}, {"hour": 15, "count": 65}, {"hour": 16, "count": 113}, {"hour": 17, "count": 124}, {"hour": 18, "count": 107}, {"hour": 19, "count": 77}, {"hour": 20, "count": 43}, {"hour": 21, "count": 41}, {"hour": 22, "count": 33}, {"hour": 23, "count": 21}], "lock2025": [{"city": "北九州市", "ward": "八幡東区", "thefts": 51, "unlocked": 28, "teens": 19}, {"city": "北九州市", "ward": "八幡西区", "thefts": 285, "unlocked": 185, "teens": 157}, {"city": "北九州市", "ward": "小倉北区", "thefts": 366, "unlocked": 235, "teens": 129}, {"city": "北九州市", "ward": "小倉南区", "thefts": 387, "unlocked": 265, "teens": 236}, {"city": "北九州市", "ward": "戸畑区", "thefts": 99, "unlocked": 67, "teens": 44}, {"city": "北九州市", "ward": "若松区", "thefts": 69, "unlocked": 51, "teens": 38}, {"city": "北九州市", "ward": "門司区", "thefts": 55, "unlocked": 36, "teens": 24}, {"city": "福岡市", "ward": "中央区", "thefts": 762, "unlocked": 420, "teens": 184}, {"city": "福岡市", "ward": "南区", "thefts": 627, "unlocked": 405, "teens": 268}, {"city": "福岡市", "ward": "博多区", "thefts": 1107, "unlocked": 611, "teens": 250}, {"city": "福岡市", "ward": "城南区", "thefts": 407, "unlocked": 263, "teens": 184}, {"city": "福岡市", "ward": "早良区", "thefts": 439, "unlocked": 307, "teens": 217}, {"city": "福岡市", "ward": "東区", "thefts": 1114, "unlocked": 552, "teens": 471}, {"city": "福岡市", "ward": "西区", "thefts": 551, "unlocked": 347, "teens": 327}], "sone_monthly": [{"month": "2023-01", "count": 7}, {"month": "2023-02", "count": 1}, {"month": "2023-03", "count": 2}, {"month": "2023-04", "count": 3}, {"month": "2023-05", "count": 1}, {"month": "2023-06", "count": 0}, {"month": "2023-07", "count": 0}, {"month": "2023-08", "count": 6}, {"month": "2023-09", "count": 6}, {"month": "2023-10", "count": 5}, {"month": "2023-11", "count": 5}, {"month": "2023-12", "count": 8}, {"month": "2024-01", "count": 10}, {"month": "2024-02", "count": 1}, {"month": "2024-03", "count": 4}, {"month": "2024-04", "count": 4}, {"month": "2024-05", "count": 3}, {"month": "2024-06", "count": 18}, {"month": "2024-07", "count": 23}, {"month": "2024-08", "count": 22}, {"month": "2024-09", "count": 8}, {"month": "2024-10", "count": 17}, {"month": "2024-11", "count": 5}, {"month": "2024-12", "count": 5}, {"month": "2025-01", "count": 2}, {"month": "2025-02", "count": 2}, {"month": "2025-03", "count": 9}, {"month": "2025-04", "count": 3}, {"month": "2025-05", "count": 7}, {"month": "2025-06", "count": 6}, {"month": "2025-07", "count": 6}, {"month": "2025-08", "count": 6}, {"month": "2025-09", "count": 3}, {"month": "2025-10", "count": 2}, {"month": "2025-11", "count": 6}, {"month": "2025-12", "count": 3}], "minami_blocks_years": [{"block": "上石田１丁目", "station": "", "year": 2019, "count": 7}, {"block": "上石田１丁目", "station": "", "year": 2020, "count": 1}, {"block": "上石田１丁目", "station": "", "year": 2021, "count": 0}, {"block": "上石田１丁目", "station": "", "year": 2022, "count": 0}, {"block": "上石田１丁目", "station": "", "year": 2023, "count": 3}, {"block": "上石田１丁目", "station": "", "year": 2024, "count": 3}, {"block": "上石田１丁目", "station": "", "year": 2025, "count": 6}, {"block": "上葛原１丁目", "station": "", "year": 2019, "count": 6}, {"block": "上葛原１丁目", "station": "", "year": 2020, "count": 6}, {"block": "上葛原１丁目", "station": "", "year": 2021, "count": 7}, {"block": "上葛原１丁目", "station": "", "year": 2022, "count": 7}, {"block": "上葛原１丁目", "station": "", "year": 2023, "count": 7}, {"block": "上葛原１丁目", "station": "", "year": 2024, "count": 13}, {"block": "上葛原１丁目", "station": "", "year": 2025, "count": 9}, {"block": "上葛原２丁目", "station": "", "year": 2019, "count": 15}, {"block": "上葛原２丁目", "station": "", "year": 2020, "count": 5}, {"block": "上葛原２丁目", "station": "", "year": 2021, "count": 4}, {"block": "上葛原２丁目", "station": "", "year": 2022, "count": 9}, {"block": "上葛原２丁目", "station": "", "year": 2023, "count": 3}, {"block": "上葛原２丁目", "station": "", "year": 2024, "count": 16}, {"block": "上葛原２丁目", "station": "", "year": 2025, "count": 12}, {"block": "下曽根新町", "station": "下曽根駅", "year": 2019, "count": 10}, {"block": "下曽根新町", "station": "下曽根駅", "year": 2020, "count": 13}, {"block": "下曽根新町", "station": "下曽根駅", "year": 2021, "count": 15}, {"block": "下曽根新町", "station": "下曽根駅", "year": 2022, "count": 14}, {"block": "下曽根新町", "station": "下曽根駅", "year": 2023, "count": 23}, {"block": "下曽根新町", "station": "下曽根駅", "year": 2024, "count": 69}, {"block": "下曽根新町", "station": "下曽根駅", "year": 2025, "count": 33}, {"block": "下曽根１丁目", "station": "", "year": 2019, "count": 9}, {"block": "下曽根１丁目", "station": "", "year": 2020, "count": 4}, {"block": "下曽根１丁目", "station": "", "year": 2021, "count": 0}, {"block": "下曽根１丁目", "station": "", "year": 2022, "count": 4}, {"block": "下曽根１丁目", "station": "", "year": 2023, "count": 0}, {"block": "下曽根１丁目", "station": "", "year": 2024, "count": 3}, {"block": "下曽根１丁目", "station": "", "year": 2025, "count": 2}, {"block": "下曽根３丁目", "station": "下曽根駅", "year": 2019, "count": 0}, {"block": "下曽根３丁目", "station": "下曽根駅", "year": 2020, "count": 1}, {"block": "下曽根３丁目", "station": "下曽根駅", "year": 2021, "count": 2}, {"block": "下曽根３丁目", "station": "下曽根駅", "year": 2022, "count": 2}, {"block": "下曽根３丁目", "station": "下曽根駅", "year": 2023, "count": 9}, {"block": "下曽根３丁目", "station": "下曽根駅", "year": 2024, "count": 11}, {"block": "下曽根３丁目", "station": "下曽根駅", "year": 2025, "count": 6}, {"block": "企救丘２丁目", "station": "", "year": 2019, "count": 1}, {"block": "企救丘２丁目", "station": "", "year": 2020, "count": 3}, {"block": "企救丘２丁目", "station": "", "year": 2021, "count": 2}, {"block": "企救丘２丁目", "station": "", "year": 2022, "count": 6}, {"block": "企救丘２丁目", "station": "", "year": 2023, "count": 2}, {"block": "企救丘２丁目", "station": "", "year": 2024, "count": 8}, {"block": "企救丘２丁目", "station": "", "year": 2025, "count": 11}, {"block": "北方１丁目", "station": "", "year": 2019, "count": 7}, {"block": "北方１丁目", "station": "", "year": 2020, "count": 5}, {"block": "北方１丁目", "station": "", "year": 2021, "count": 5}, {"block": "北方１丁目", "station": "", "year": 2022, "count": 1}, {"block": "北方１丁目", "station": "", "year": 2023, "count": 8}, {"block": "北方１丁目", "station": "", "year": 2024, "count": 4}, {"block": "北方１丁目", "station": "", "year": 2025, "count": 7}, {"block": "北方２丁目", "station": "北方駅", "year": 2019, "count": 15}, {"block": "北方２丁目", "station": "北方駅", "year": 2020, "count": 10}, {"block": "北方２丁目", "station": "北方駅", "year": 2021, "count": 19}, {"block": "北方２丁目", "station": "北方駅", "year": 2022, "count": 16}, {"block": "北方２丁目", "station": "北方駅", "year": 2023, "count": 19}, {"block": "北方２丁目", "station": "北方駅", "year": 2024, "count": 15}, {"block": "北方２丁目", "station": "北方駅", "year": 2025, "count": 14}, {"block": "北方３丁目", "station": "北方駅", "year": 2019, "count": 15}, {"block": "北方３丁目", "station": "北方駅", "year": 2020, "count": 8}, {"block": "北方３丁目", "station": "北方駅", "year": 2021, "count": 18}, {"block": "北方３丁目", "station": "北方駅", "year": 2022, "count": 16}, {"block": "北方３丁目", "station": "北方駅", "year": 2023, "count": 12}, {"block": "北方３丁目", "station": "北方駅", "year": 2024, "count": 12}, {"block": "北方３丁目", "station": "北方駅", "year": 2025, "count": 16}, {"block": "北方４丁目", "station": "北方駅", "year": 2019, "count": 22}, {"block": "北方４丁目", "station": "北方駅", "year": 2020, "count": 8}, {"block": "北方４丁目", "station": "北方駅", "year": 2021, "count": 11}, {"block": "北方４丁目", "station": "北方駅", "year": 2022, "count": 16}, {"block": "北方４丁目", "station": "北方駅", "year": 2023, "count": 14}, {"block": "北方４丁目", "station": "北方駅", "year": 2024, "count": 14}, {"block": "北方４丁目", "station": "北方駅", "year": 2025, "count": 7}, {"block": "城野１丁目", "station": "城野駅", "year": 2019, "count": 13}, {"block": "城野１丁目", "station": "城野駅", "year": 2020, "count": 12}, {"block": "城野１丁目", "station": "城野駅", "year": 2021, "count": 13}, {"block": "城野１丁目", "station": "城野駅", "year": 2022, "count": 21}, {"block": "城野１丁目", "station": "城野駅", "year": 2023, "count": 29}, {"block": "城野１丁目", "station": "城野駅", "year": 2024, "count": 37}, {"block": "城野１丁目", "station": "城野駅", "year": 2025, "count": 26}, {"block": "守恒本町１丁目", "station": "", "year": 2019, "count": 7}, {"block": "守恒本町１丁目", "station": "", "year": 2020, "count": 1}, {"block": "守恒本町１丁目", "station": "", "year": 2021, "count": 6}, {"block": "守恒本町１丁目", "station": "", "year": 2022, "count": 5}, {"block": "守恒本町１丁目", "station": "", "year": 2023, "count": 4}, {"block": "守恒本町１丁目", "station": "", "year": 2024, "count": 10}, {"block": "守恒本町１丁目", "station": "", "year": 2025, "count": 5}, {"block": "守恒本町２丁目", "station": "", "year": 2019, "count": 8}, {"block": "守恒本町２丁目", "station": "", "year": 2020, "count": 4}, {"block": "守恒本町２丁目", "station": "", "year": 2021, "count": 0}, {"block": "守恒本町２丁目", "station": "", "year": 2022, "count": 5}, {"block": "守恒本町２丁目", "station": "", "year": 2023, "count": 11}, {"block": "守恒本町２丁目", "station": "", "year": 2024, "count": 5}, {"block": "守恒本町２丁目", "station": "", "year": 2025, "count": 3}, {"block": "富士見３丁目", "station": "", "year": 2019, "count": 9}, {"block": "富士見３丁目", "station": "", "year": 2020, "count": 5}, {"block": "富士見３丁目", "station": "", "year": 2021, "count": 9}, {"block": "富士見３丁目", "station": "", "year": 2022, "count": 10}, {"block": "富士見３丁目", "station": "", "year": 2023, "count": 8}, {"block": "富士見３丁目", "station": "", "year": 2024, "count": 7}, {"block": "富士見３丁目", "station": "", "year": 2025, "count": 8}, {"block": "徳力１丁目", "station": "徳力公団前駅", "year": 2019, "count": 8}, {"block": "徳力１丁目", "station": "徳力公団前駅", "year": 2020, "count": 4}, {"block": "徳力１丁目", "station": "徳力公団前駅", "year": 2021, "count": 8}, {"block": "徳力１丁目", "station": "徳力公団前駅", "year": 2022, "count": 4}, {"block": "徳力１丁目", "station": "徳力公団前駅", "year": 2023, "count": 12}, {"block": "徳力１丁目", "station": "徳力公団前駅", "year": 2024, "count": 12}, {"block": "徳力１丁目", "station": "徳力公団前駅", "year": 2025, "count": 10}, {"block": "徳力２丁目", "station": "", "year": 2019, "count": 7}, {"block": "徳力２丁目", "station": "", "year": 2020, "count": 7}, {"block": "徳力２丁目", "station": "", "year": 2021, "count": 0}, {"block": "徳力２丁目", "station": "", "year": 2022, "count": 4}, {"block": "徳力２丁目", "station": "", "year": 2023, "count": 5}, {"block": "徳力２丁目", "station": "", "year": 2024, "count": 5}, {"block": "徳力２丁目", "station": "", "year": 2025, "count": 7}, {"block": "志井６丁目", "station": "", "year": 2019, "count": 2}, {"block": "志井６丁目", "station": "", "year": 2020, "count": 3}, {"block": "志井６丁目", "station": "", "year": 2021, "count": 3}, {"block": "志井６丁目", "station": "", "year": 2022, "count": 4}, {"block": "志井６丁目", "station": "", "year": 2023, "count": 7}, {"block": "志井６丁目", "station": "", "year": 2024, "count": 8}, {"block": "志井６丁目", "station": "", "year": 2025, "count": 12}, {"block": "沼本町１丁目", "station": "", "year": 2019, "count": 1}, {"block": "沼本町１丁目", "station": "", "year": 2020, "count": 1}, {"block": "沼本町１丁目", "station": "", "year": 2021, "count": 1}, {"block": "沼本町１丁目", "station": "", "year": 2022, "count": 1}, {"block": "沼本町１丁目", "station": "", "year": 2023, "count": 1}, {"block": "沼本町１丁目", "station": "", "year": 2024, "count": 10}, {"block": "沼本町１丁目", "station": "", "year": 2025, "count": 2}, {"block": "湯川新町４丁目", "station": "安部山公園駅", "year": 2019, "count": 12}, {"block": "湯川新町４丁目", "station": "安部山公園駅", "year": 2020, "count": 19}, {"block": "湯川新町４丁目", "station": "安部山公園駅", "year": 2021, "count": 26}, {"block": "湯川新町４丁目", "station": "安部山公園駅", "year": 2022, "count": 24}, {"block": "湯川新町４丁目", "station": "安部山公園駅", "year": 2023, "count": 38}, {"block": "湯川新町４丁目", "station": "安部山公園駅", "year": 2024, "count": 44}, {"block": "湯川新町４丁目", "station": "安部山公園駅", "year": 2025, "count": 42}, {"block": "若園４丁目", "station": "", "year": 2019, "count": 1}, {"block": "若園４丁目", "station": "", "year": 2020, "count": 4}, {"block": "若園４丁目", "station": "", "year": 2021, "count": 0}, {"block": "若園４丁目", "station": "", "year": 2022, "count": 0}, {"block": "若園４丁目", "station": "", "year": 2023, "count": 4}, {"block": "若園４丁目", "station": "", "year": 2024, "count": 4}, {"block": "若園４丁目", "station": "", "year": 2025, "count": 8}]};
+  const calcs = {};
+  const api = {
+    colors: ['var(--kd-accent)', 'var(--cds-chart-muted)'],
+    data(id) {
+      if (raw[id]) return { status: 'ok', data: raw[id] };
+      if (calcs[id]) { try { return { status: 'ok', data: calcs[id]() }; } catch (e) { return { status: 'error', data: [] }; } }
+      return { status: 'missing', data: [] };
+    },
+    calc(id, spec) { calcs[id] = () => spec.fn(...spec.inputs.map(i => api.data(i).data)); },
+    onData(fn) {
+      const run = () => fn();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+      let t, w = window.innerWidth;
+      window.addEventListener('resize', () => { if (window.innerWidth === w) return; w = window.innerWidth; clearTimeout(t); t = setTimeout(run, 150); });
+    },
+    setLink() {}, refresh() {}, params() { return {}; }, setParams() {}, resetParams() {}
+  };
+  return api;
+})();
+</script>
+</head>
+<body>
+<div id="dash-root">
+<style>
+.kq { --kq-hl: color-mix(in srgb, var(--color-fg) 6%, transparent); font-family: var(--font-anthropic-sans); color: var(--color-fg); display: grid; gap: var(--cds-gap-xl); max-width: 1180px; margin-inline: auto; }
+.kq-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); text-wrap: balance; }
+.kq-head p { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); line-height: 1.7; max-width: 62em; }
+.kq-nav { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); margin-top: var(--cds-gap-sm); }
+.kq-nav a { font-size: var(--cds-font-size-caption); color: var(--color-fg); text-decoration: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: var(--cds-pad-xs) var(--cds-pad-sm); background: var(--color-panel); }
+.kq-nav a:hover { background: var(--kq-hl); }
+.kq-q { display: grid; gap: var(--cds-gap-md); scroll-margin-top: 1rem; }
+.kq-qhead { display: grid; gap: var(--cds-gap-xs); border-top: 2px solid var(--color-fg); padding-top: var(--cds-gap-sm); }
+.kq-qnum { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .12em; }
+.kq-qhead h2 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 1.55rem; line-height: 1.35; margin: 0; text-wrap: balance; }
+.kq-ans { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.75; max-width: 64em; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-lg); }
+.kq-ans .tag { display: inline-block; font-size: var(--cds-font-size-caption); font-weight: 600; margin-right: .6em; padding: 0 .5em; border-radius: 4px; background: var(--color-fg); color: var(--color-bg); }
+.kq-ans b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.kq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+.kq-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; position: relative; }
+.kq-card.wide { grid-column: 1 / -1; }
+.kq-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.kq-card .note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; line-height: 1.6; }
+.kq-chart { position: relative; min-height: 220px; }
+.kq-chart svg { display: block; overflow: visible; }
+.kq-chart text { font-family: var(--font-anthropic-sans); }
+.kq-ctrl { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-xs); }
+.kq-btn { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+.kq-btn[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.kq-btn:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.kq-sep { width: 1px; align-self: stretch; background: var(--color-border-line); margin-inline: var(--cds-gap-xs); }
+.kq-sw { display: inline-block; width: .7em; height: .7em; border-radius: 2px; margin-right: .35em; vertical-align: -.05em; }
+.kq-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.kq-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+.kq-tip .t { color: var(--cds-text-secondary); }
+.kq-hyps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--cds-gap-md); }
+.kq-hyp { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; position: relative; }
+.kq-hyp .h { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.kq-hyp h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; line-height: 1.45; }
+.kq-chip { justify-self: start; font-size: var(--cds-font-size-caption); font-weight: 600; padding: 2px .6em; border-radius: 999px; border: 1px solid currentColor; }
+.kq-chip.ok { color: var(--color-ok); }
+.kq-chip.na { color: var(--color-fg-muted); }
+.kq-big { font-family: var(--font-anthropic-serif); font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kq-hyp p { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.6; }
+.kq-foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.7; border-top: 1px solid var(--color-border-line); padding-top: var(--cds-gap-sm); }
+.kq-foot p { margin: 0 0 var(--cds-gap-xs); }
+.kq-fail { display: flex; align-items: center; justify-content: center; gap: .5em; min-height: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.kq-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (prefers-reduced-motion: no-preference) {
+  .kq .a-line { animation: kq-draw 1500ms var(--cds-ease-out) both; }
+  .kq .a-grow { transform-box: fill-box; transform-origin: 50% 100%; animation: kq-grow 700ms var(--cds-ease-out) both; }
+  .kq .a-growx { transform-box: fill-box; transform-origin: 0 50%; animation: kq-growx 750ms var(--cds-ease-out) both; }
+  .kq .a-growxr { transform-box: fill-box; transform-origin: 100% 50%; animation: kq-growx 750ms var(--cds-ease-out) both; }
+  .kq .a-fade { animation: kq-fade 900ms var(--cds-ease-out) both; }
+  .kq .pulse { animation: kq-pulse 2.4s ease-in-out infinite; }
+}
+@keyframes kq-draw { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+@keyframes kq-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes kq-growx { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes kq-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kq-pulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+</style>
+
+<div class="kq">
+  <header class="kq-head" id="top">
+    <h1>北九州市の治安情勢と小倉南区の自転車盗</h1>
+    <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した国勢調査人口をもとに、次の三つの問いについて検討した。</p>
+    <nav class="kq-nav" aria-label="問いへ移動"><a href="#q1">問1　県内で危険な都市と言えるか</a><a href="#q2">問2　北九州市で多く発生している犯罪</a><a href="#q3">問3　小倉南区で多発する自転車盗</a></nav>
+  </header>
+
+  <!-- ===== Q1 ===== -->
+  <section class="kq-q" id="q1">
+    <div class="kq-qhead"><span class="kq-qnum">問 1</span><h2>北九州市は福岡県の中で危険な都市だと言えるか</h2></div>
+    <p class="kq-ans"><span class="tag">結論</span>人口当たりで見るかぎり、北九州市が県内で危険な都市だとは言えない。2025年の人口千人当たり刑法犯は北九州市 <b class="v" data-fmt="n2" data-source="munirates" data-field="total" data-where="name=北九州市">—</b> 件で、県平均 <b class="v" data-fmt="n2" data-source="prefrates" data-field="total" data-row="0">—</b> 件を下回る。県内 <b class="v" data-fmt="int" data-source="kkrank" data-field="n_all" data-row="0">—</b> 市町村の中で <b class="v" data-fmt="int" data-source="kkrank" data-field="rank_all" data-row="0">—</b> 番目、人口10万人以上の <b class="v" data-fmt="int" data-source="kkrank" data-field="n_big" data-row="0">—</b> 市の中では <b class="v" data-fmt="int" data-source="kkrank" data-field="rank_big" data-row="0">—</b> 番目である。罪種別では知能犯（県の <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=知能犯">—</b> 倍）や風俗犯（<b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=風俗犯">—</b> 倍）が県平均を上回るが、粗暴犯は <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=粗暴犯">—</b> 倍でほぼ県並み、件数の最も多い窃盗犯は <b class="v" data-fmt="n2" data-source="typeratio" data-field="ratio" data-where="type=窃盗犯">—</b> 倍で県平均を下回る。</p>
+    <div class="kq-grid">
+      <div class="kq-card wide">
+        <h3 id="muni-title">市町村別、人口千人当たり認知件数（2025年）</h3>
+        <p class="note">縦の破線は県平均である。ボタンで罪種と対象の市町村を切り替えられる。北九州市は朱色、福岡市は濃い灰色で示した。</p>
+        <div class="kq-ctrl">
+          <span role="group" aria-label="罪種" class="kq-ctrl">
+            <button class="kq-btn" type="button" data-mm="total" aria-pressed="true">刑法犯総数</button>
+            <button class="kq-btn" type="button" data-mm="violent" aria-pressed="false">粗暴犯</button>
+            <button class="kq-btn" type="button" data-mm="theft" aria-pressed="false">窃盗犯</button>
+            <button class="kq-btn" type="button" data-mm="fraud" aria-pressed="false">知能犯</button>
+            <button class="kq-btn" type="button" data-mm="bike" aria-pressed="false">自転車盗</button>
+          </span>
+          <span class="kq-sep" aria-hidden="true"></span>
+          <span role="group" aria-label="対象" class="kq-ctrl">
+            <button class="kq-btn" type="button" data-mf="big" aria-pressed="true">人口10万人以上</button>
+            <button class="kq-btn" type="button" data-mf="all" aria-pressed="false">全60市町村</button>
+          </span>
+        </div>
+        <div class="kq-chart" id="muni-chart" data-source="munirates prefrates"></div>
+      </div>
+      <div class="kq-card">
+        <h3 id="type-title">北九州市の罪種・手口別の対県比（2025年）</h3>
+        <p class="note">北九州市の人口当たり件数を県の人口当たり件数で割った値で、1.0が県平均と同じ水準を表す。自転車盗は、市全体で見るとむしろ県平均より少ない。</p>
+        <div class="kq-chart" id="type-chart" data-source="typeratio"></div>
+      </div>
+      <div class="kq-card">
+        <h3 id="share-title">県内の認知件数に占める北九州市の割合</h3>
+        <p class="note">折れ線は県全体の認知件数に占める北九州市の割合、点は国勢調査による人口の割合である。両者はほぼ同じ水準で推移しており、認知件数の割合が人口の割合を大きく上回った年はない。</p>
+        <div class="kq-legend" data-source="kkshare popshare"><span><i class="kq-sw" style="background: var(--kq-c0)"></i>認知件数の割合</span><span><i class="kq-sw" style="background: var(--color-fg-muted); border-radius: 50%"></i>人口の割合（国勢調査）</span></div>
+        <div class="kq-chart" id="share-chart" data-source="kkshare popshare"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Q2 ===== -->
+  <section class="kq-q" id="q2">
+    <div class="kq-qhead"><span class="kq-qnum">問 2</span><h2>北九州市で多く発生している犯罪について</h2></div>
+    <p class="kq-ans"><span class="tag">結論</span>2021年から2025年にかけて、北九州市の認知件数は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=合計">—</b> 件増えた。このうち知能犯 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=知能犯">—</b> 件、自転車盗 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=自転車盗">—</b> 件、万引き <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=万引き">—</b> 件の三つで、増加分の大半を占める。区別に見ると、知能犯は八幡西区で、自転車盗は小倉北区と小倉南区で大きく増えた。一方、粗暴犯は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=粗暴犯">—</b> 件と減少した。</p>
+    <div class="kq-grid">
+      <div class="kq-card">
+        <h3 id="inc-title">罪種・手口別の増減（2021→2025年）</h3>
+        <p class="note">北九州市全体の値で、右に伸びる棒が増加、左に伸びる棒が減少を表す。</p>
+        <div class="kq-chart" id="inc-chart" data-source="increase"></div>
+      </div>
+      <div class="kq-card">
+        <h3 id="stack-title">罪種・手口別の認知件数の推移</h3>
+        <p class="note">凡例の罪種をクリックすると、その罪種だけが濃く表示されます。</p>
+        <div class="kq-legend" id="stack-legend" data-source="kk_cats"></div>
+        <div class="kq-chart" id="stack-chart" data-source="kk_cats"></div>
+      </div>
+      <div class="kq-card wide">
+        <h3 id="heat-title">区別・罪種別の認知件数</h3>
+        <p class="note">色が濃いほど値が大きい。「増減」では朱色が増加、灰色が減少を表す。知能犯の多くは詐欺であり、被害者の住む区で認知されることが多いとみられる。</p>
+        <div class="kq-ctrl" role="group" aria-label="指標">
+          <button class="kq-btn" type="button" data-hm="change" aria-pressed="true">増減（2021→2025年）</button>
+          <button class="kq-btn" type="button" data-hm="rate" aria-pressed="false">人口千人当たり（2025年）</button>
+        </div>
+        <div class="kq-chart" id="heat-chart" data-source="wardinc"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Q3 ===== -->
+  <section class="kq-q" id="q3">
+    <div class="kq-qhead"><span class="kq-qnum">問 3</span><h2>小倉南区で多発する自転車盗について</h2></div>
+    <p class="kq-ans"><span class="tag">結論</span>小倉南区の自転車盗は、駅周辺の町丁目に集中している。2024年の急増は、曽根交番管内（下曽根駅周辺）で6〜10月に一時的に集中して発生したためである。2025年に盗まれた自転車の <b class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</b> は無施錠で、被害者には中高生が多い。発生時刻は朝の通学時間帯と夕方に集中している。中高生が通学に使う自転車を、無施錠のまま駅周辺に置いていることが主な原因と考えられる。</p>
+    <div class="kq-grid">
+      <div class="kq-card">
+        <h3 id="koban-title">交番管内別の推移</h3>
+        <p class="note">2024年に曽根交番管内で急増したが、2025年には前年までの水準近くまで減少した。</p>
+        <div class="kq-chart" id="koban-chart" data-source="minami_koban"></div>
+      </div>
+      <div class="kq-card">
+        <h3 id="block-title">町丁目別の件数（上位12町丁目）</h3>
+        <p class="note">ボタンで年を切り替えられる。駅名は最寄り駅。</p>
+        <div class="kq-ctrl" role="group" aria-label="年">
+          <button class="kq-btn" type="button" data-by="2019" aria-pressed="false">2019年</button>
+          <button class="kq-btn" type="button" data-by="2020" aria-pressed="false">2020年</button>
+          <button class="kq-btn" type="button" data-by="2021" aria-pressed="false">2021年</button>
+          <button class="kq-btn" type="button" data-by="2022" aria-pressed="false">2022年</button>
+          <button class="kq-btn" type="button" data-by="2023" aria-pressed="false">2023年</button>
+          <button class="kq-btn" type="button" data-by="2024" aria-pressed="true">2024年</button>
+          <button class="kq-btn" type="button" data-by="2025" aria-pressed="false">2025年</button>
+        </div>
+        <div class="kq-chart" id="block-chart" data-source="minami_blocks_years"></div>
+      </div>
+      <div class="kq-card wide">
+        <h3 id="monthly-title">曽根交番管内の月別件数（2023〜2025年）</h3>
+        <p class="note">例年は月に数件であったが、2024年6〜10月に急増し、11月には元の水準に戻った。</p>
+        <div class="kq-chart" id="monthly-chart" data-source="sone_monthly"></div>
+      </div>
+    </div>
+    <div class="kq-hyps three">
+      <div class="kq-hyp">
+        <span class="h">結論1</span>
+        <h3>駅周辺の町丁目に集中している</h3>
+        <p>2023〜2025年の件数上位12町丁目のうち、9か所が駅の近くにある。最も多い下曽根新町と湯川新町4丁目の2か所で、区全体の約2割を占める。</p>
+      </div>
+      <div class="kq-hyp">
+        <span class="h">結論2</span>
+        <h3>盗まれた自転車の多くは無施錠である</h3>
+        <div class="kq-chart" id="lock-chart" data-source="minami_lockshare" style="min-height: 150px"></div>
+        <p>グラフは、小倉南区で盗まれた自転車に占める無施錠の割合である。2025年は北九州市全体で <span class="v" data-fmt="pct" data-source="citystats" data-field="unlock" data-where="city=北九州市">—</span>、福岡市で <span class="v" data-fmt="pct" data-source="citystats" data-field="unlock" data-where="city=福岡市">—</span> であった。</p>
+      </div>
+      <div class="kq-hyp">
+        <span class="h">結論3</span>
+        <h3>中高生の通学用自転車の被害が多い</h3>
+        <div class="kq-chart" id="hour-chart" data-source="minami_hour" style="min-height: 150px"></div>
+        <p>グラフは発生時刻別の件数（2023〜2025年）である。朝7〜8時台と夕方16〜18時台に件数が多い。被害者に占める中高生の割合は、2024年が <span class="v" data-fmt="pct" data-source="minami_youth" data-field="share" data-where="year=2024">—</span>、2025年が <span class="v" data-fmt="pct" data-source="minami_youth" data-field="share" data-where="year=2025">—</span> であった。</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="kq-foot">
+    <p>資料：福岡県警察「刑法犯 市区町村別認知件数」（各年確定値）、福岡県警察「犯罪オープンデータ（自転車盗）」（2019〜2025年）、福岡県「令和7年国勢調査 人口等基本集計 結果の要約」付表（市区町村別人口）、国勢調査（2010・2015・2020年）。</p>
+    <p>人口当たりの値は、2025年の認知件数を令和7年国勢調査の人口で割った値である。オープンデータの交番名は2023年から「交番」の語が省かれているため、同じ交番として扱った。発生時刻が不明の件数は、時刻別の集計から除いた。オープンデータで分かる発生場所は町丁目までであり、どの駐輪場で起きたかは分からない。</p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const root = document.querySelector('.kq');
+  root.style.setProperty('--kq-c0', dash.colors[0]);
+  const C0 = () => dash.colors[0];
+  const MUTED = 'var(--cds-chart-muted)';
+  const DARK = 'var(--color-fg-muted)';
+  const motion = window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+  const drawn = {};
+  const r1 = v => Math.round(v * 100) / 100;
+  const r3 = v => Math.round(v * 10000) / 10000;
+
+  /* ---------- calculations ---------- */
+  const METRICS = ['total', 'violent', 'theft', 'fraud', 'bike'];
+  dash.calc('munirates', {
+    inputs: ['muni2025'], title: '市町村別の人口千人当たり件数',
+    description: '各市町村の2025年の認知件数を令和7年国勢調査人口で割り、1,000を掛けたもの。',
+    fn: (muni2025) => muni2025.map(r => {
+      const o = { name: r.name, kind: r.kind, pop: Number(r.pop) };
+      METRICS.forEach(m => { o[m] = r1(Number(r[m]) / Number(r.pop) * 1000); });
+      return o;
+    })
+  });
+  dash.calc('prefrates', {
+    inputs: ['pref2025'], title: '県平均の人口千人当たり件数',
+    description: '福岡県全体の2025年の認知件数を県人口で割り、1,000を掛けたもの。',
+    fn: (pref2025) => pref2025.map(r => {
+      const o = { name: r.name };
+      METRICS.forEach(m => { o[m] = r1(Number(r[m]) / Number(r.pop) * 1000); });
+      return o;
+    })
+  });
+  dash.calc('kkrank', {
+    inputs: ['munirates'], title: '北九州市の順位',
+    description: '人口千人当たり刑法犯の多い順に並べたときの北九州市の順位（全市町村と、人口10万人以上の市）。',
+    fn: (munirates) => {
+      const all = munirates.slice().sort((a, b) => b.total - a.total);
+      const big = all.filter(r => r.pop >= 100000);
+      return [{ rank_all: all.findIndex(r => r.name === '北九州市') + 1, n_all: all.length, rank_big: big.findIndex(r => r.name === '北九州市') + 1, n_big: big.length }];
+    }
+  });
+  dash.calc('typeratio', {
+    inputs: ['types2025', 'muni2025', 'pref2025'], title: '罪種別の対県比',
+    description: '北九州市の人口当たり件数を、県全体の人口当たり件数で割ったもの。',
+    fn: (types2025, muni2025, pref2025) => {
+      const kp = Number(muni2025.find(r => r.name === '北九州市').pop), pp = Number(pref2025[0].pop);
+      return types2025.map(r => ({ type: r.type, group: r.group, ratio: r1((Number(r.kitakyushu) / kp) / (Number(r.pref) / pp)) }));
+    }
+  });
+  dash.calc('kkshare', {
+    inputs: ['share_years'], title: '県内の認知件数に占める割合',
+    description: '北九州市の認知件数を福岡県全体の認知件数で割ったもの。',
+    fn: (share_years) => share_years.map(r => ({ year: Number(r.year), share: r3(Number(r.kitakyushu) / Number(r.pref)) }))
+  });
+  dash.calc('popshare', {
+    inputs: ['census_pop'], title: '県内の人口に占める割合',
+    description: '国勢調査の北九州市人口を福岡県人口で割ったもの。',
+    fn: (census_pop) => census_pop.map(r => ({ year: Number(r.year), share: r3(Number(r.kitakyushu) / Number(r.pref)) }))
+  });
+  dash.calc('increase', {
+    inputs: ['kk_cats'], title: '罪種・手口別の増減（2021→2025年）',
+    description: '北九州市の2025年の件数から2021年の件数を引いたもの。合計は全罪種の和。',
+    fn: (kk_cats) => {
+      const cats = [...new Set(kk_cats.map(r => r.category))];
+      const at = (c, y) => Number(kk_cats.find(r => r.category === c && Number(r.year) === y).count);
+      const rows = cats.map(c => ({ category: c, change: at(c, 2025) - at(c, 2021) }));
+      rows.push({ category: '合計', change: rows.reduce((s, r) => s + r.change, 0) });
+      return rows;
+    }
+  });
+  dash.calc('wardinc', {
+    inputs: ['ward_cats'], title: '区別・罪種別の増減と人口当たり件数',
+    description: '各区の2025年の件数から2021年の件数を引いた増減と、2025年の件数を令和7年国勢調査人口で割り1,000を掛けた値。',
+    fn: (ward_cats) => ward_cats.map(r => ({ key: r.ward + '|' + r.category, ward: r.ward, category: r.category, change: Number(r.c2025) - Number(r.c2021), rate: r1(Number(r.c2025) / Number(r.pop) * 1000) }))
+  });
+  dash.calc('minami_lockshare', {
+    inputs: ['minami_lock'], title: '小倉南区の無施錠の割合',
+    description: '小倉南区の自転車盗のうち、施錠関係が無施錠の件数の割合。',
+    fn: (minami_lock) => [...new Set(minami_lock.map(r => Number(r.year)))].sort().map(y => {
+      const rs = minami_lock.filter(r => Number(r.year) === y);
+      const tot = rs.reduce((s, r) => s + Number(r.count), 0);
+      const un = rs.filter(r => r.lock === '無施錠').reduce((s, r) => s + Number(r.count), 0);
+      return { year: y, unlocked: r3(un / tot) };
+    })
+  });
+  dash.calc('minami_youth', {
+    inputs: ['minami_victim'], title: '小倉南区の被害者に占める中高生',
+    description: '小倉南区の自転車盗の被害者のうち、職業が中学生または高校生の件数の割合。',
+    fn: (minami_victim) => [...new Set(minami_victim.map(r => Number(r.year)))].sort().map(y => {
+      const rs = minami_victim.filter(r => Number(r.year) === y);
+      const tot = rs.reduce((s, r) => s + Number(r.count), 0);
+      const yo = rs.filter(r => r.occupation === '中学生' || r.occupation === '高校生').reduce((s, r) => s + Number(r.count), 0);
+      return { year: y, share: r3(yo / tot) };
+    })
+  });
+  dash.calc('citystats', {
+    inputs: ['lock2025'], title: '市別の無施錠の割合',
+    description: '北九州市・福岡市の全区の自転車盗のうち、無施錠の件数の割合（2025年）。',
+    fn: (lock2025) => ['北九州市', '福岡市'].map(city => {
+      const rs = lock2025.filter(r => r.city === city);
+      const n = rs.reduce((s, r) => s + Number(r.thefts), 0);
+      return { city, unlock: r3(rs.reduce((s, r) => s + Number(r.unlocked), 0) / n) };
+    })
+  });
+
+  /* ---------- helpers ---------- */
+  const fmt = {
+    n2: v => d3.format('.2f')(v),
+    int: v => d3.format(',')(Math.round(v)),
+    sint: v => { const n = Math.round(v); return (n > 0 ? '+' : n < 0 ? '−' : '±') + d3.format(',')(Math.abs(n)); },
+    pct: v => d3.format('.0%')(v)
+  };
+  const parseWhere = w => (w || '').split('&').filter(Boolean).map(s => s.split('=').map(decodeURIComponent));
+  const rowsOf = id => { const d = dash.data(id); return d.status === 'ok' && Array.isArray(d.data) ? d.data : null; };
+  const text = (sel, x, y, t, o = {}) => sel.append('text').attr('x', x).attr('y', y).attr('font-size', o.size || 'var(--cds-font-size-caption)')
+    .attr('fill', o.fill || 'var(--color-fg-muted)').attr('text-anchor', o.anchor || 'start').attr('font-weight', o.weight || 400).text(t);
+
+  function fail(box, status) {
+    box.querySelectorAll('svg, .kq-tip').forEach(n => n.remove());
+    if (['error', 'connect', 'declined', 'missing'].includes(status)) {
+      box.classList.remove('dash-skeleton');
+      if (!box.querySelector('.kq-fail')) { const f = document.createElement('div'); f.className = 'kq-fail'; f.textContent = 'Failed to load'; box.appendChild(f); }
+    } else { box.querySelectorAll('.kq-fail').forEach(n => n.remove()); box.classList.add('dash-skeleton'); }
+  }
+  function ready(box) { box.classList.remove('dash-skeleton'); box.querySelectorAll('.kq-fail').forEach(n => n.remove()); }
+  function need(box, ids) {
+    for (const id of ids) { const d = dash.data(id); if (d.status !== 'ok') { fail(box, d.status); return false; } }
+    ready(box); return true;
+  }
+  function svgFor(box, W, H, label) {
+    d3.select(box).selectAll('svg').remove();
+    return d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-labelledby', label);
+  }
+  function tipFor(box) {
+    let t = box.querySelector('.kq-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'kq-tip'; t.hidden = true; box.appendChild(t); }
+    return t;
+  }
+  function showTip(box, t, lines, x, y) {
+    t.replaceChildren(...lines.map(([cls, s]) => { const e = document.createElement('div'); if (cls) e.className = cls; e.textContent = s; return e; }));
+    t.hidden = false;
+    t.style.left = Math.max(0, Math.min(box.clientWidth - t.offsetWidth, x - t.offsetWidth / 2)) + 'px';
+    t.style.top = Math.max(0, y - t.offsetHeight - 10) + 'px';
+  }
+  const scaleXY = (box, W, H) => ({ sx: box.clientWidth / W, sy: (box.querySelector('svg')?.getBoundingClientRect().height || H) / H });
+  function countUp(el, v, f) {
+    if (!motion || el.dataset.done) { el.textContent = f(v); return; }
+    el.dataset.done = '1'; const t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / 1000), e = 1 - Math.pow(1 - k, 3); el.textContent = f(v * e); if (k < 1) requestAnimationFrame(step); else el.textContent = f(v); };
+    requestAnimationFrame(step);
+  }
+  function fillValues() {
+    root.querySelectorAll('.v[data-fmt]').forEach(el => {
+      const d = dash.data(el.getAttribute('data-source'));
+      if (d.status !== 'ok') { el.textContent = '—'; return; }
+      const rows = Array.isArray(d.data) ? d.data : [];
+      const row = el.hasAttribute('data-row') ? rows[Number(el.getAttribute('data-row'))]
+        : rows.find(r => parseWhere(el.getAttribute('data-where')).every(([k, v]) => String(r[k]) === v));
+      const raw = row ? row[el.getAttribute('data-field')] : null;
+      if (raw === null || raw === undefined) { el.textContent = '—'; return; }
+      const f = fmt[el.getAttribute('data-fmt')];
+      if (el.closest('.kq-ans') || el.classList.contains('kq-big')) countUp(el, Number(raw), f); else el.textContent = f(Number(raw));
+    });
+  }
+  function animLine(path, key) {
+    if (!motion || drawn[key]) return;
+    const len = path.node().getTotalLength();
+    path.attr('stroke-dasharray', len).style('--len', len).classed('a-line', true)
+      .on('animationend', () => path.attr('stroke-dasharray', null).classed('a-line', false));
+  }
+  function spread(items, gap, lo, hi) {
+    items.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < items.length; i++) if (items[i].y - items[i - 1].y < gap) items[i].y = items[i - 1].y + gap;
+    const over = items.length ? items[items.length - 1].y - hi : 0; if (over > 0) items.forEach(it => it.y -= over);
+    items.forEach(it => it.y = Math.max(lo, it.y)); return items;
+  }
+  function pressGroup(attr, value) { root.querySelectorAll(`[${attr}]`).forEach(b => b.setAttribute('aria-pressed', String(b.getAttribute(attr) === value))); }
+
+  /* ---------- Q1: municipalities ---------- */
+  let mm = 'total', mf = 'big';
+  const MLAB = { total: '刑法犯総数', violent: '粗暴犯', theft: '窃盗犯', fraud: '知能犯', bike: '自転車盗' };
+  root.querySelectorAll('[data-mm]').forEach(b => b.addEventListener('click', () => { mm = b.getAttribute('data-mm'); pressGroup('data-mm', mm); drawMuni(true); }));
+  root.querySelectorAll('[data-mf]').forEach(b => b.addEventListener('click', () => { mf = b.getAttribute('data-mf'); pressGroup('data-mf', mf); drawMuni(false); }));
+  function drawMuni(trans) {
+    const box = document.getElementById('muni-chart');
+    if (!need(box, ['munirates', 'prefrates'])) return;
+    const pref = dash.data('prefrates').data[0];
+    let rows = dash.data('munirates').data.slice();
+    if (mf === 'big') rows = rows.filter(r => r.pop >= 100000);
+    rows.sort((a, b) => b[mm] - a[mm]);
+    const W = Math.max(300, box.clientWidth), rowH = mf === 'big' ? 30 : 17, m = { t: 22, r: 50, b: 6, l: 76 }, H = m.t + m.b + rows.length * rowH;
+    const xmax = d3.max(rows, r => r[mm]) * 1.05;
+    const x = d3.scaleLinear([0, xmax], [m.l, W - m.r]);
+    const y = d3.scaleBand(rows.map(r => r.name), [m.t, H - m.b]).padding(mf === 'big' ? .3 : .2);
+    let svg = d3.select(box).select('svg');
+    const rebuild = !trans || svg.empty() || Number(svg.attr('data-w')) !== W || svg.attr('data-mf') !== mf;
+    if (rebuild) { svg = svgFor(box, W, H, 'muni-title').attr('data-w', W).attr('data-mf', mf); svg.append('g').attr('class', 'bars'); svg.append('g').attr('class', 'ref'); }
+    const t = svg.transition().duration(trans ? 700 : 0).ease(d3.easeCubicOut);
+    const color = r => r.name === '北九州市' ? C0() : r.name === '福岡市' ? DARK : MUTED;
+    const g = svg.select('g.bars').selectAll('g.r').data(rows, r => r.name).join(enter => {
+      const e = enter.append('g').attr('class', 'r');
+      e.append('text').attr('class', 'lab').attr('x', m.l - 6).attr('text-anchor', 'end').attr('font-size', 'var(--cds-font-size-caption)');
+      e.append('rect').attr('class', 'bar').attr('x', m.l).attr('rx', 3);
+      e.append('text').attr('class', 'num').attr('font-size', 'var(--cds-font-size-caption)');
+      return e;
+    });
+    const hl = r => r.name === '北九州市' || r.name === '福岡市';
+    g.select('.lab').text(r => r.name).attr('fill', r => hl(r) ? 'var(--color-fg)' : 'var(--color-fg-muted)').attr('font-weight', r => hl(r) ? 600 : 400)
+      .transition(t).attr('y', r => y(r.name) + y.bandwidth() / 2 + 4);
+    const bars = g.select('.bar').attr('height', y.bandwidth()).attr('fill', color);
+    bars.transition(t).attr('y', r => y(r.name)).attr('width', r => Math.max(1, x(r[mm]) - m.l));
+    if (!drawn.muni && motion) bars.classed('a-growx', true).style('animation-delay', (r, i) => (i * (mf === 'big' ? 60 : 12)) + 'ms');
+    g.select('.num').text(r => fmt.n2(r[mm])).attr('fill', r => hl(r) ? 'var(--color-fg)' : 'var(--color-fg-muted)').attr('font-weight', r => hl(r) ? 600 : 400)
+      .transition(t).attr('x', r => x(r[mm]) + 5).attr('y', r => y(r.name) + y.bandwidth() / 2 + 4);
+    const ref = svg.select('g.ref');
+    ref.selectAll('*').remove();
+    ref.append('line').attr('y1', m.t - 4).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3')
+      .attr('x1', x(pref[mm])).attr('x2', x(pref[mm]));
+    text(ref, x(pref[mm]) + 4, m.t - 8, `県平均 ${fmt.n2(pref[mm])}（${MLAB[mm]}）`, { fill: 'var(--color-fg)' });
+    drawn.muni = true;
+  }
+
+  function drawTypes() {
+    const box = document.getElementById('type-chart');
+    if (!need(box, ['typeratio'])) return;
+    const rows = dash.data('typeratio').data.slice();
+    const W = Math.max(280, box.clientWidth), rowH = 24, m = { t: 18, r: 40, b: 8, l: 150 }, H = m.t + m.b + rows.length * rowH;
+    const x = d3.scaleLinear([0, Math.max(1.4, d3.max(rows, r => r.ratio) * 1.08)], [m.l, W - m.r]);
+    const y = d3.scaleBand(rows.map(r => r.type), [m.t, H - m.b]).padding(.3);
+    const svg = svgFor(box, W, H, 'type-title');
+    const lab = W < 380 ? (s => s.replace('（空き巣・忍込み・居空き）', '')) : (s => s);
+    rows.forEach((r, i) => {
+      text(svg, m.l - 8, y(r.type) + y.bandwidth() / 2 + 4, (r.group === '手口' ? '　' : '') + lab(r.type), { anchor: 'end', fill: r.group === '罪種' ? 'var(--color-fg)' : 'var(--color-fg-muted)' });
+      const over = r.ratio >= 1.1;
+      const b = svg.append('rect').attr('x', m.l).attr('y', y(r.type)).attr('height', y.bandwidth()).attr('width', x(r.ratio) - m.l).attr('rx', 3)
+        .attr('fill', over ? C0() : MUTED);
+      if (!drawn.types && motion) b.classed('a-growx', true).style('animation-delay', (i * 60) + 'ms');
+      text(svg, x(r.ratio) + 5, y(r.type) + y.bandwidth() / 2 + 4, d3.format('.2f')(r.ratio), { fill: 'var(--color-fg)', weight: over ? 600 : 400 });
+    });
+    svg.append('line').attr('x1', x(1)).attr('x2', x(1)).attr('y1', m.t - 6).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
+    text(svg, x(1), m.t - 8, '県平均 = 1.0', { anchor: 'middle', fill: 'var(--color-fg)' });
+    drawn.types = true;
+  }
+
+  function drawShare() {
+    const box = document.getElementById('share-chart');
+    if (!need(box, ['kkshare', 'popshare'])) return;
+    const rows = dash.data('kkshare').data, pops = dash.data('popshare').data;
+    const W = Math.max(280, box.clientWidth), H = 230, m = { t: 14, r: 46, b: 24, l: 40 };
+    const yrs = d3.extent(rows.concat(pops), r => r.year);
+    const x = d3.scaleLinear(yrs, [m.l, W - m.r]);
+    const y = d3.scaleLinear([0.14, 0.22], [H - m.b, m.t]);
+    const svg = svgFor(box, W, H, 'share-title');
+    y.ticks(4).forEach(v => {
+      svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', 'var(--cds-chart-grid)');
+      text(svg, m.l - 6, y(v) + 4, d3.format('.0%')(v), { anchor: 'end' });
+    });
+    [2010, 2015, 2020, 2025].forEach(v => text(svg, x(v), H - 6, v, { anchor: 'middle' }));
+    const p = svg.append('path').attr('d', d3.line().x(r => x(r.year)).y(r => y(r.share))(rows)).attr('fill', 'none').attr('stroke', C0()).attr('stroke-width', 2.4).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+    animLine(p, 'share');
+    pops.forEach(r => {
+      svg.append('circle').attr('cx', x(r.year)).attr('cy', y(r.share)).attr('r', 5).attr('fill', 'var(--color-panel)').attr('stroke', DARK).attr('stroke-width', 2).classed('a-fade', !drawn.share);
+    });
+    const last = rows[rows.length - 1];
+    text(svg, x(last.year) + 6, y(last.share) - 6, d3.format('.1%')(last.share), { fill: 'var(--color-fg)', weight: 600 });
+    const tip = tipFor(box);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove', ev => {
+        const [px] = d3.pointer(ev); const yr = Math.round(x.invert(px));
+        const r = rows.find(r => r.year === yr); if (!r) return;
+        const pp = pops.find(p => p.year === yr);
+        const { sx, sy } = scaleXY(box, W, H);
+        showTip(box, tip, [['t', yr + '年'], [null, `認知件数の割合　${d3.format('.1%')(r.share)}`]].concat(pp ? [[null, `人口の割合　${d3.format('.1%')(pp.share)}`]] : []), x(yr) * sx, y(r.share) * sy);
+      }).on('pointerleave', () => { tip.hidden = true; });
+    drawn.share = true;
+  }
+
+  /* ---------- Q2 ---------- */
+  const SHORT = { '凶悪犯・風俗犯・その他': '凶悪・風俗・その他', '乗り物盗（自動車・オートバイ）': '自動車・オートバイ盗' };
+  function drawIncrease() {
+    const box = document.getElementById('inc-chart');
+    if (!need(box, ['increase'])) return;
+    const rows = dash.data('increase').data.filter(r => r.category !== '合計').slice().sort((a, b) => b.change - a.change);
+    const W = Math.max(280, box.clientWidth), rowH = 26, m = { t: 6, r: 50, b: 6, l: W < 420 ? 120 : 170 }, H = m.t + m.b + rows.length * rowH;
+    const ext = d3.max(rows, r => Math.abs(r.change));
+    const lo = d3.min(rows, r => r.change);
+    const x = d3.scaleLinear([Math.min(0, lo) * 1.15, ext * 1.1], [m.l, W - m.r]);
+    const y = d3.scaleBand(rows.map(r => r.category), [m.t, H - m.b]).padding(.28);
+    const svg = svgFor(box, W, H, 'inc-title');
+    svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const top3 = rows.slice(0, 3).map(r => r.category);
+    rows.forEach((r, i) => {
+      const pos = r.change >= 0;
+      const hl = top3.includes(r.category);
+      text(svg, m.l - 8, y(r.category) + y.bandwidth() / 2 + 4, SHORT[r.category] || r.category, { anchor: 'end', fill: hl ? 'var(--color-fg)' : 'var(--color-fg-muted)', weight: hl ? 600 : 400 });
+      const b = svg.append('rect').attr('x', pos ? x(0) : x(r.change)).attr('y', y(r.category)).attr('height', y.bandwidth()).attr('width', Math.abs(x(r.change) - x(0))).attr('rx', 3)
+        .attr('fill', hl ? C0() : MUTED);
+      if (!drawn.inc && motion) b.classed(pos ? 'a-growx' : 'a-growxr', true).style('animation-delay', (i * 70) + 'ms');
+      text(svg, pos ? x(r.change) + 5 : x(0) + 5, y(r.category) + y.bandwidth() / 2 + 4, fmt.sint(r.change), { anchor: 'start', fill: 'var(--color-fg)', weight: hl ? 600 : 400 });
+    });
+    drawn.inc = true;
+  }
+
+  let stackSel = null;
+  function drawStack() {
+    const box = document.getElementById('stack-chart');
+    const leg = document.getElementById('stack-legend');
+    if (!need(box, ['kk_cats'])) { leg.replaceChildren(); return; }
+    const raw = dash.data('kk_cats').data.map(r => ({ year: Number(r.year), category: r.category, count: Number(r.count) }));
+    const years = [...new Set(raw.map(r => r.year))].sort();
+    const order = ['知能犯', '自転車盗', '万引き', 'その他の窃盗', '粗暴犯', '凶悪犯・風俗犯・その他', '車上ねらい等', '侵入盗', '乗り物盗（自動車・オートバイ）'].filter(c => raw.some(r => r.category === c));
+    raw.forEach(r => { if (!order.includes(r.category)) order.push(r.category); });
+    const pal = { '知能犯': C0(), '自転車盗': 'color-mix(in srgb, ' + C0() + ' 62%, var(--color-panel))', '万引き': 'color-mix(in srgb, ' + C0() + ' 32%, var(--color-panel))' };
+    const greys = ['var(--cds-chart-muted)', 'color-mix(in srgb, var(--cds-chart-muted) 70%, var(--color-panel))', 'color-mix(in srgb, var(--cds-chart-muted) 45%, var(--color-panel))', 'color-mix(in srgb, var(--color-fg-muted) 70%, var(--color-panel))', 'color-mix(in srgb, var(--cds-chart-muted) 85%, var(--color-fg))', 'color-mix(in srgb, var(--cds-chart-muted) 30%, var(--color-panel))'];
+    const colorOf = c => pal[c] || greys[(order.indexOf(c) - 3 + greys.length) % greys.length];
+    leg.replaceChildren(...order.map(c => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'kq-btn'; b.setAttribute('aria-pressed', String(stackSel === c));
+      const sw = document.createElement('i'); sw.className = 'kq-sw'; sw.style.background = colorOf(c);
+      b.append(sw, document.createTextNode(c));
+      b.addEventListener('click', () => { stackSel = stackSel === c ? null : c; drawStack(); });
+      return b;
+    }));
+    const wide = years.map(y => { const o = { year: y }; order.forEach(c => { o[c] = (raw.find(r => r.year === y && r.category === c) || { count: 0 }).count; }); return o; });
+    const series = d3.stack().keys(order)(wide);
+    const W = Math.max(280, box.clientWidth), H = 250, m = { t: 18, r: 8, b: 24, l: 44 };
+    const x = d3.scaleBand(years, [m.l, W - m.r]).padding(.28);
+    const y = d3.scaleLinear([0, d3.max(wide, w => order.reduce((s, c) => s + w[c], 0)) * 1.08], [H - m.b, m.t]);
+    const svg = svgFor(box, W, H, 'stack-title');
+    y.ticks(4).forEach(v => { svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', v ? 'var(--cds-chart-grid)' : 'var(--cds-chart-axis)'); text(svg, m.l - 6, y(v) + 4, fmt.int(v), { anchor: 'end' }); });
+    years.forEach(v => text(svg, x(v) + x.bandwidth() / 2, H - 6, v, { anchor: 'middle' }));
+    const first = !drawn.stack;
+    const gs = svg.append('g');
+    years.forEach((yr, i) => {
+      const col = gs.append('g');
+      if (first && motion) col.classed('a-grow', true).style('animation-delay', (i * 80) + 'ms');
+      series.forEach(s => {
+        const d = s[i];
+        col.append('rect').attr('x', x(yr)).attr('width', x.bandwidth()).attr('y', y(d[1])).attr('height', Math.max(0, y(d[0]) - y(d[1])))
+          .attr('fill', colorOf(s.key)).attr('opacity', stackSel && stackSel !== s.key ? .18 : 1).attr('stroke', 'var(--color-panel)').attr('stroke-width', .6);
+      });
+      const tot = order.reduce((s, c) => s + wide[i][c], 0);
+      text(svg, x(yr) + x.bandwidth() / 2, y(tot) - 5, fmt.int(tot), { anchor: 'middle', fill: 'var(--color-fg)' });
+      if (stackSel) {
+        const s = series.find(s => s.key === stackSel); const d = s[i];
+        if (y(d[0]) - y(d[1]) > 12) text(svg, x(yr) + x.bandwidth() / 2, (y(d[0]) + y(d[1])) / 2 + 4, fmt.int(d[1] - d[0]), { anchor: 'middle', fill: 'var(--color-fg)', weight: 600 });
+      }
+    });
+    drawn.stack = true;
+  }
+
+  let hm = 'change';
+  root.querySelectorAll('[data-hm]').forEach(b => b.addEventListener('click', () => { hm = b.getAttribute('data-hm'); pressGroup('data-hm', hm); drawHeat(); }));
+  function drawHeat() {
+    const box = document.getElementById('heat-chart');
+    if (!need(box, ['wardinc'])) return;
+    const rows = dash.data('wardinc').data;
+    const wards = [...new Set(rows.map(r => r.ward))];
+    const cats = ['知能犯', '自転車盗', '万引き', 'その他の窃盗', '粗暴犯', '凶悪犯・風俗犯・その他', '車上ねらい等', '侵入盗', '乗り物盗（自動車・オートバイ）'].filter(c => rows.some(r => r.category === c));
+    const narrow = box.clientWidth < 620;
+    const short = { '凶悪犯・風俗犯・その他': '凶悪・風俗・他', '乗り物盗（自動車・オートバイ）': '乗り物盗', 'その他の窃盗': '他の窃盗', '車上ねらい等': '車上ねらい' };
+    const W = Math.max(320, box.clientWidth), m = { t: narrow ? 70 : 54, r: 6, b: 6, l: 64 }, cellH = 30, H = m.t + m.b + wards.length * cellH;
+    const x = d3.scaleBand(cats, [m.l, W - m.r]).padding(.06);
+    const y = d3.scaleBand(wards, [m.t, H - m.b]).padding(.08);
+    const svg = svgFor(box, W, H, 'heat-title');
+    cats.forEach(c => {
+      const lbl = narrow ? (short[c] || c) : (short[c] || c);
+      const tx = svg.append('text').attr('font-size', 'var(--cds-font-size-caption)').attr('fill', 'var(--color-fg)')
+        .attr('transform', narrow ? `translate(${x(c) + x.bandwidth() / 2 + 4},${m.t - 6}) rotate(-50)` : `translate(${x(c) + x.bandwidth() / 2},${m.t - 8})`)
+        .attr('text-anchor', narrow ? 'start' : 'middle').text(lbl);
+    });
+    wards.forEach(w => text(svg, m.l - 8, y(w) + y.bandwidth() / 2 + 4, w, { anchor: 'end', fill: 'var(--color-fg)' }));
+    const vals = rows.map(r => r[hm]);
+    const vmax = d3.max(vals, v => Math.abs(v)) || 1;
+    const fill = v => {
+      if (hm === 'change') { const k = Math.min(1, Math.abs(v) / vmax); return v >= 0 ? `color-mix(in srgb, ${C0()} ${Math.round(8 + k * 82)}%, var(--color-panel))` : `color-mix(in srgb, var(--color-fg-muted) ${Math.round(8 + k * 60)}%, var(--color-panel))`; }
+      const k = Math.min(1, v / vmax); return `color-mix(in srgb, ${C0()} ${Math.round(6 + k * 84)}%, var(--color-panel))`;
+    };
+    const dark = v => hm === 'change' ? (v > 0 && Math.abs(v) / vmax > .55) : (v / vmax > .55);
+    const first = !drawn.heat;
+    rows.forEach((r, i) => {
+      if (!cats.includes(r.category)) return;
+      const v = r[hm];
+      const cell = svg.append('rect').attr('x', x(r.category)).attr('y', y(r.ward)).attr('width', x.bandwidth()).attr('height', y.bandwidth()).attr('rx', 3).attr('fill', fill(v));
+      if (first && motion) cell.classed('a-fade', true).style('animation-delay', (cats.indexOf(r.category) * 50 + wards.indexOf(r.ward) * 30) + 'ms');
+      if (x.bandwidth() > 34) text(svg, x(r.category) + x.bandwidth() / 2, y(r.ward) + y.bandwidth() / 2 + 4, hm === 'change' ? fmt.sint(v) : fmt.n2(v),
+        { anchor: 'middle', fill: dark(v) ? 'var(--color-panel)' : 'var(--color-fg)', weight: dark(v) ? 600 : 400 });
+    });
+    const tip = tipFor(box);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove', ev => {
+        const [px, py] = d3.pointer(ev);
+        const c = cats.find(c => px >= x(c) && px <= x(c) + x.step()); const w = wards.find(w => py >= y(w) && py <= y(w) + y.step());
+        if (!c || !w) { tip.hidden = true; return; }
+        const r = rows.find(r => r.ward === w && r.category === c);
+        const { sx, sy } = scaleXY(box, W, H);
+        showTip(box, tip, [['t', `${w}・${c}`], [null, `増減（2021→2025年）　${fmt.sint(r.change)}件`], [null, `人口千人当たり（2025年）　${fmt.n2(r.rate)}`]], (x(c) + x.bandwidth() / 2) * sx, y(w) * sy);
+      }).on('pointerleave', () => { tip.hidden = true; });
+    drawn.heat = true;
+  }
+
+  /* ---------- Q3 ---------- */
+  function drawKoban() {
+    const box = document.getElementById('koban-chart');
+    if (!need(box, ['minami_koban'])) return;
+    const raw = dash.data('minami_koban').data.map(r => ({ year: Number(r.year), koban: r.koban, count: Number(r.count) }));
+    const tot = d3.rollup(raw, v => d3.sum(v, r => r.count), r => r.koban);
+    const top = [...tot].sort((a, b) => b[1] - a[1]).slice(0, 5).map(d => d[0]);
+    const years = [...new Set(raw.map(r => r.year))].sort();
+    const W = Math.max(280, box.clientWidth), H = 250, m = { t: 14, r: 64, b: 24, l: 34 };
+    const x = d3.scaleLinear(d3.extent(years), [m.l, W - m.r]);
+    const y = d3.scaleLinear([0, d3.max(raw.filter(r => top.includes(r.koban)), r => r.count) * 1.1], [H - m.b, m.t]);
+    const svg = svgFor(box, W, H, 'koban-title');
+    y.ticks(4).forEach(v => { svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', v ? 'var(--cds-chart-grid)' : 'var(--cds-chart-axis)'); text(svg, m.l - 6, y(v) + 4, v, { anchor: 'end' }); });
+    years.forEach(v => text(svg, x(v), H - 6, W < 400 ? String(v).slice(2) : v, { anchor: 'middle' }));
+    const ends = [];
+    top.slice().sort((a, b) => (a === '曽根') - (b === '曽根')).forEach(k => {
+      const pts = years.map(yr => ({ year: yr, count: (raw.find(r => r.year === yr && r.koban === k) || { count: 0 }).count }));
+      const hl = k === '曽根';
+      const p = svg.append('path').attr('d', d3.line().x(d => x(d.year)).y(d => y(d.count))(pts)).attr('fill', 'none').attr('stroke', hl ? C0() : MUTED).attr('stroke-width', hl ? 2.6 : 1.6).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+      if (hl) { animLine(p, 'koban'); const pk = pts.find(d => d.year === 2024); if (pk) svg.append('circle').attr('cx', x(2024)).attr('cy', y(pk.count)).attr('r', 4.5).attr('fill', C0()).classed('pulse', true); }
+      const last = pts[pts.length - 1];
+      ends.push({ y: y(last.count) + 4, k, last, hl });
+    });
+    spread(ends, 13, m.t, H - m.b).forEach(e => text(svg, W - m.r + 6, e.y, `${e.k} ${e.last.count}`, { fill: e.hl ? 'var(--color-fg)' : 'var(--color-fg-muted)', weight: e.hl ? 600 : 400 }));
+    const tip = tipFor(box);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove', ev => {
+        const [px] = d3.pointer(ev); const yr = years.reduce((a, b) => Math.abs(x(b) - px) < Math.abs(x(a) - px) ? b : a);
+        const { sx, sy } = scaleXY(box, W, H);
+        showTip(box, tip, [['t', yr + '年']].concat(top.map(k => [null, `${k}　${(raw.find(r => r.year === yr && r.koban === k) || { count: 0 }).count}件`])), x(yr) * sx, m.t * sy + 40);
+      }).on('pointerleave', () => { tip.hidden = true; });
+    drawn.koban = true;
+  }
+
+  let by = '2024';
+  root.querySelectorAll('[data-by]').forEach(b => b.addEventListener('click', () => { by = b.getAttribute('data-by'); pressGroup('data-by', by); drawBlocks(true); }));
+  function drawBlocks(trans) {
+    const box = document.getElementById('block-chart');
+    if (!need(box, ['minami_blocks_years'])) return;
+    const all = dash.data('minami_blocks_years').data.map(r => ({ block: r.block, station: r.station, year: Number(r.year), count: Number(r.count) }));
+    const rows = all.filter(r => r.year === Number(by)).sort((a, b) => b.count - a.count || a.block.localeCompare(b.block)).slice(0, 12);
+    const W = Math.max(280, box.clientWidth), rowH = 22, m = { t: 4, r: W < 420 ? 30 : 110, b: 4, l: 100 }, H = m.t + m.b + 12 * rowH;
+    const xmax = d3.max(all, r => r.count);
+    const x = d3.scaleLinear([0, xmax], [m.l, W - m.r - 28]);
+    const y = d3.scaleBand(rows.map(r => r.block), [m.t, m.t + rows.length * rowH]).padding(.24);
+    let svg = d3.select(box).select('svg');
+    if (!trans || svg.empty() || Number(svg.attr('data-w')) !== W) svg = svgFor(box, W, H, 'block-title').attr('data-w', W);
+    const t = svg.transition().duration(trans ? 650 : 0).ease(d3.easeCubicOut);
+    const g = svg.selectAll('g.r').data(rows, r => r.block).join(
+      enter => {
+        const e = enter.append('g').attr('class', 'r').attr('opacity', trans ? 0 : 1);
+        e.append('text').attr('class', 'lab').attr('x', m.l - 6).attr('text-anchor', 'end').attr('font-size', 'var(--cds-font-size-caption)').attr('fill', 'var(--color-fg)').attr('y', r => y(r.block) + y.bandwidth() / 2 + 4);
+        e.append('rect').attr('class', 'bar').attr('x', m.l).attr('rx', 3).attr('y', r => y(r.block)).attr('width', 0);
+        e.append('text').attr('class', 'num').attr('font-size', 'var(--cds-font-size-caption)').attr('font-weight', 600).attr('fill', 'var(--color-fg)').attr('x', m.l + 5).attr('y', r => y(r.block) + y.bandwidth() / 2 + 4);
+        e.append('text').attr('class', 'st').attr('font-size', 'var(--cds-font-size-caption)').attr('fill', 'var(--color-fg-muted)').attr('x', W - m.r + 4).attr('y', r => y(r.block) + y.bandwidth() / 2 + 4);
+        return e;
+      },
+      update => update,
+      exit => exit.transition(t).attr('opacity', 0).remove()
+    );
+    g.transition(t).attr('opacity', 1);
+    g.select('.lab').text(r => r.block).transition(t).attr('y', r => y(r.block) + y.bandwidth() / 2 + 4);
+    g.select('.bar').attr('height', y.bandwidth()).attr('fill', r => r.station ? C0() : MUTED)
+      .transition(t).attr('y', r => y(r.block)).attr('width', r => Math.max(1, x(r.count) - m.l));
+    g.select('.num').text(r => r.count).transition(t).attr('x', r => x(r.count) + 5).attr('y', r => y(r.block) + y.bandwidth() / 2 + 4);
+    g.select('.st').text(r => W < 420 ? '' : r.station).transition(t).attr('y', r => y(r.block) + y.bandwidth() / 2 + 4);
+    if (!drawn.blocks && motion && !trans) g.select('.bar').classed('a-growx', true).style('animation-delay', (r, i) => (i * 50) + 'ms');
+    drawn.blocks = true;
+  }
+
+  function drawMonthly() {
+    const box = document.getElementById('monthly-chart');
+    if (!need(box, ['sone_monthly'])) return;
+    const rows = dash.data('sone_monthly').data.map(r => ({ month: String(r.month).slice(0, 7), count: Number(r.count) }));
+    const W = Math.max(280, box.clientWidth), H = 210, m = { t: 26, r: 6, b: 26, l: 28 };
+    const x = d3.scaleBand(rows.map(r => r.month), [m.l, W - m.r]).padding(.2);
+    const y = d3.scaleLinear([0, Math.ceil(d3.max(rows, r => r.count) / 5) * 5], [H - m.b, m.t]);
+    const svg = svgFor(box, W, H, 'monthly-title');
+    y.ticks(4).forEach(v => { svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', v ? 'var(--cds-chart-grid)' : 'var(--cds-chart-axis)'); text(svg, m.l - 6, y(v) + 4, v, { anchor: 'end' }); });
+    const spike = mo => mo >= '2024-06' && mo <= '2024-10';
+    if (rows.some(r => r.month === '2024-06') && rows.some(r => r.month === '2024-10')) {
+      const pad = x.step() * x.paddingInner() / 2, x0 = x('2024-06') - pad, x1 = x('2024-10') + x.bandwidth() + pad;
+      svg.append('rect').attr('x', x0).attr('y', m.t - 4).attr('width', x1 - x0).attr('height', H - m.b - m.t + 4).attr('fill', 'var(--cds-chart-grid)').classed('a-fade', !drawn.monthly);
+      text(svg, (x0 + x1) / 2, m.t - 10, '集中発生（2024年6〜10月）', { anchor: 'middle', fill: 'var(--color-fg)', weight: 600 });
+    }
+    rows.forEach((r, i) => {
+      const b = svg.append('rect').attr('x', x(r.month)).attr('y', y(r.count)).attr('width', x.bandwidth()).attr('height', Math.max(0, y(0) - y(r.count))).attr('rx', Math.min(3, x.bandwidth() / 2)).attr('fill', spike(r.month) ? C0() : MUTED);
+      if (!drawn.monthly && motion) b.classed('a-grow', true).style('animation-delay', (i * 25) + 'ms');
+      if (spike(r.month) && x.bandwidth() > 9) text(svg, x(r.month) + x.bandwidth() / 2, y(r.count) - 4, r.count, { anchor: 'middle', fill: 'var(--color-fg)', weight: 600 });
+    });
+    rows.filter(r => r.month.endsWith('-01')).forEach(r => text(svg, x(r.month), H - 8, r.month.slice(0, 4) + '年'));
+    const tip = tipFor(box);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove', ev => {
+        const [px] = d3.pointer(ev);
+        const r = rows.reduce((a, b) => Math.abs(x(b.month) + x.bandwidth() / 2 - px) < Math.abs(x(a.month) + x.bandwidth() / 2 - px) ? b : a);
+        const [yy, mo] = r.month.split('-'); const { sx, sy } = scaleXY(box, W, H);
+        showTip(box, tip, [['t', `${yy}年${Number(mo)}月`], [null, `曽根交番管内　${r.count}件`]], (x(r.month) + x.bandwidth() / 2) * sx, y(r.count) * sy);
+      }).on('pointerleave', () => { tip.hidden = true; });
+    drawn.monthly = true;
+  }
+
+  function drawLock() {
+    const box = document.getElementById('lock-chart');
+    if (!need(box, ['minami_lockshare'])) return;
+    const rows = dash.data('minami_lockshare').data;
+    const W = Math.max(220, box.clientWidth), H = 140, m = { t: 18, r: 6, b: 20, l: 6 };
+    const x = d3.scaleBand(rows.map(r => r.year), [m.l, W - m.r]).padding(.25);
+    const y = d3.scaleLinear([0, 1], [H - m.b, m.t]);
+    const svg = svgFor(box, W, H, 'lock-chart');
+    rows.forEach((r, i) => {
+      svg.append('rect').attr('x', x(r.year)).attr('y', m.t).attr('width', x.bandwidth()).attr('height', H - m.b - m.t).attr('rx', 3).attr('fill', 'var(--cds-chart-grid)');
+      const b = svg.append('rect').attr('x', x(r.year)).attr('y', y(r.unlocked)).attr('width', x.bandwidth()).attr('height', y(0) - y(r.unlocked)).attr('rx', 3).attr('fill', r.year >= 2024 ? C0() : MUTED);
+      if (!drawn.lock && motion) b.classed('a-grow', true).style('animation-delay', (i * 60) + 'ms');
+      text(svg, x(r.year) + x.bandwidth() / 2, y(r.unlocked) - 4, d3.format('.0%')(r.unlocked), { anchor: 'middle', fill: 'var(--color-fg)', size: '10px' });
+      text(svg, x(r.year) + x.bandwidth() / 2, H - 6, String(r.year).slice(2), { anchor: 'middle', size: '10px' });
+    });
+    drawn.lock = true;
+  }
+
+  function drawHour() {
+    const box = document.getElementById('hour-chart');
+    if (!need(box, ['minami_hour'])) return;
+    const rows = dash.data('minami_hour').data.map(r => ({ hour: Number(r.hour), count: Number(r.count) }));
+    const W = Math.max(220, box.clientWidth), H = 140, m = { t: 10, r: 4, b: 20, l: 4 };
+    const x = d3.scaleBand(rows.map(r => r.hour), [m.l, W - m.r]).padding(.15);
+    const y = d3.scaleLinear([0, d3.max(rows, r => r.count) * 1.08], [H - m.b, m.t]);
+    const svg = svgFor(box, W, H, 'hour-chart');
+    const peak = h => (h >= 7 && h <= 8) || (h >= 16 && h <= 18);
+    rows.forEach((r, i) => {
+      const b = svg.append('rect').attr('x', x(r.hour)).attr('y', y(r.count)).attr('width', x.bandwidth()).attr('height', y(0) - y(r.count)).attr('rx', 2).attr('fill', peak(r.hour) ? C0() : MUTED);
+      if (!drawn.hour && motion) b.classed('a-grow', true).style('animation-delay', (i * 25) + 'ms');
+    });
+    [0, 6, 12, 18].forEach(h => text(svg, x(h) + x.bandwidth() / 2, H - 6, h + '時', { anchor: 'middle', size: '10px' }));
+    const tip = tipFor(box);
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove', ev => {
+        const [px] = d3.pointer(ev); const r = rows.reduce((a, b) => Math.abs(x(b.hour) - px) < Math.abs(x(a.hour) - px) ? b : a);
+        const { sx, sy } = scaleXY(box, W, H);
+        showTip(box, tip, [['t', `${r.hour}時台`], [null, `${r.count}件`]], (x(r.hour) + x.bandwidth() / 2) * sx, y(r.count) * sy);
+      }).on('pointerleave', () => { tip.hidden = true; });
+    drawn.hour = true;
+  }
+
+  dash.onData(() => {
+    fillValues();
+    drawMuni(false); drawTypes(); drawShare();
+    drawIncrease(); drawStack(); drawHeat();
+    drawKoban(); drawBlocks(false); drawMonthly(); drawLock(); drawHour();
+    if (!drawn.link) { const el = location.hash && document.getElementById(location.hash.slice(1)); if (el) { el.scrollIntoView(); drawn.link = true; } }
+  });
+  root.querySelectorAll('.kq-nav a').forEach(a => a.addEventListener('click', ev => { const el = document.getElementById(a.getAttribute('href').slice(1)); if (el) { ev.preventDefault(); el.scrollIntoView({ behavior: motion ? 'smooth' : 'auto' }); dash.setLink(el.id); } }));
+})();
+</script>
+
+</div>
+</body>
+</html>
