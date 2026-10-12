@@ -364,7 +364,7 @@ window.dash = (() => {
       <div class="kq-hyp">
         <span class="h">共通｜効果の検証</span>
         <h3>交番管内別の月次件数の共有</h3>
-        <div><div class="kq-big"><span class="v" data-fmt="int" data-source="sone_peak" data-field="y2024" data-row="0">—</span>件</div><p>曽根交番管内の2024年6〜10月の件数（前年同期は <span class="v" data-fmt="int" data-source="sone_peak" data-field="y2023" data-row="0">—</span>件、翌年同期は <span class="v" data-fmt="int" data-source="sone_peak" data-field="y2025" data-row="0">—</span>件）</p></div>
+        <div><div class="kq-big"><span class="v" data-fmt="sint" data-source="sone_peak" data-field="diff" data-row="0">—</span>件</div><p>曽根交番管内の2024年6〜10月の件数の、前年同期からの増加（<span class="v" data-fmt="int" data-source="sone_peak" data-field="y2023" data-row="0">—</span>件→<span class="v" data-fmt="int" data-source="sone_peak" data-field="y2024" data-row="0">—</span>件。翌年同期は <span class="v" data-fmt="int" data-source="sone_peak" data-field="y2025" data-row="0">—</span>件）</p></div>
         <div class="kq-chart" id="sone-bars" data-source="sone_peak" style="min-height: 120px" aria-label="曽根交番管内の6〜10月の件数（2023〜2025年）"></div>
         <p>曽根交番管内の件数は2024年6月から急に増え、10月まで高い水準が続いた。月ごとの件数を見ていれば、増え始めた時点で気づくことができた。区役所と警察署が交番管内別の月次件数を共有し、急な増加を早く捉えて対策を打てるようにしたい。対策の効果も、区全体の件数ではなく、対策した駐輪場の周辺で被害が何件減ったかで確かめることが望ましい。</p>
       </div>
@@ -528,7 +528,7 @@ window.dash = (() => {
   dash.calc('sone_peak', {
     inputs: ['sone_monthly'], title: '曽根交番管内の6〜10月の件数',
     description: '曽根交番管内の自転車盗の6〜10月の合計（2023〜2025年）。',
-    fn: (m) => { const s = y => d3.sum(m.filter(r => r.month >= y + '-06' && r.month <= y + '-10'), r => Number(r.count)); return [{ y2023: s(2023), y2024: s(2024), y2025: s(2025) }]; }
+    fn: (m) => { const s = y => d3.sum(m.filter(r => r.month >= y + '-06' && r.month <= y + '-10'), r => Number(r.count)); return [{ y2023: s(2023), y2024: s(2024), y2025: s(2025), diff: s(2024) - s(2023) }]; }
   });
   dash.calc('flowsteps', {
     inputs: ['kk_cats', 'ward_cats', 'minami_koban'], title: '分析の流れ（2025年の件数）',
