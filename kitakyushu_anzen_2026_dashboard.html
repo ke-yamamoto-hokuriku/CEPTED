@@ -333,8 +333,8 @@ window.dash = (() => {
         <span class="h">自転車盗｜被害対象の強化（駐輪設備）</span>
         <h3 id="stn-title">高架下・階段下の駐輪場へのガードパイプ設置</h3>
         <div class="kq-chart" id="stn-chart" data-source="station_years" style="min-height: 150px"></div>
-        <p class="note">駅のある町丁目の件数（城野1丁目、湯川新町4丁目）。</p>
-        <p>安部山公園駅や北方駅のように高架下や階段下にある駐輪場は、周囲の目が届きにくい。自転車をスタンドで立てて並べるだけの駐輪場では、鍵を壊して持ち去ることも難しくない。安部山公園駅のある湯川新町4丁目では、2025年の件数が <span class="v" data-fmt="int" data-source="station_years" data-field="y2025" data-where="station=安部山公園駅">—</span>件で、前年の <span class="v" data-fmt="int" data-source="station_years" data-field="y2024" data-where="station=安部山公園駅">—</span>件と同じ水準にある。こうした場所では、設備による対策を加えると、さらに効果が見込める。ガードパイプやラックを全列に設け、自転車を構造物に鍵でつなげる（アースロック）ようにするとよい。構造物につないでおけば、鍵を壊さないかぎり持ち去れず、いつでも同じように盗みにくい状態が保たれる。</p>
+        <p class="note">駅のある町丁目の件数（城野1丁目、湯川新町4丁目、北方2〜4丁目）。点にカーソルを合わせると各年の件数が出る。</p>
+        <p>安部山公園駅や北方駅のように高架下や階段下にある駐輪場は、周囲の目が届きにくい。自転車をスタンドで立てて並べるだけの駐輪場では、鍵を壊して持ち去ることも難しくない。安部山公園駅のある湯川新町4丁目では、2025年の件数が <span class="v" data-fmt="int" data-source="station_years" data-field="y2025" data-where="station=安部山公園駅">—</span>件で、前年の <span class="v" data-fmt="int" data-source="station_years" data-field="y2024" data-where="station=安部山公園駅">—</span>件と同じ水準にある。北方駅のある北方2〜4丁目も、2024年の <span class="v" data-fmt="int" data-source="station_years" data-field="y2024" data-where="station=北方駅">—</span>件から2025年の <span class="v" data-fmt="int" data-source="station_years" data-field="y2025" data-where="station=北方駅">—</span>件への減少にとどまる。こうした場所では、設備による対策を加えると、さらに効果が見込める。ガードパイプやラックを全列に設け、自転車を構造物に鍵でつなげる（アースロック）ようにするとよい。構造物につないでおけば、鍵を壊さないかぎり持ち去れず、いつでも同じように盗みにくい状態が保たれる。</p>
       </div>
       <div class="kq-hyp">
         <span class="h">自転車盗｜自然監視性の確保・領域性の強化</span>
@@ -1140,21 +1140,30 @@ window.dash = (() => {
   function drawStation() {
     const box = document.getElementById('stn-chart');
     if (!need(box, ['station_years'])) return;
-    const S = ['城野駅', '安部山公園駅'], YS = [2023, 2024, 2025];
+    const S = ['城野駅', '安部山公園駅', '北方駅'], YS = [2023, 2024, 2025];
     const data = dash.data('station_years').data.filter(r => S.includes(r.station)).map(r => ({ station: r.station, pts: YS.map(y => ({ y, v: Number(r['y' + y]) })) }));
-    const W = Math.max(240, box.clientWidth), H = 150, m = { t: 14, r: 92, b: 22, l: 30 };
-    const x = d3.scalePoint(YS, [m.l, W - m.r]), y = d3.scaleLinear([0, d3.max(data, d => d3.max(d.pts, p => p.v)) * 1.15], [H - m.b, m.t]);
+    const W = Math.max(240, box.clientWidth), H = 170, m = { t: 14, r: 112, b: 22, l: 30 };
+    const x = d3.scalePoint(YS, [m.l, W - m.r]), y = d3.scaleLinear([0, d3.max(data, d => d3.max(d.pts, p => p.v)) * 1.12], [H - m.b, m.t]);
     const svg = svgFor(box, W, H, 'stn-title');
     YS.forEach(v => text(svg, x(v), H - 6, v + '年', { anchor: 'middle', fill: 'var(--color-fg-muted)' }));
     svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
+    const COL = { '城野駅': C0(), '安部山公園駅': 'var(--color-fg-muted)', '北方駅': 'var(--color-fg-muted)' };
+    const starts = [], ends = [];
+    const tip = tipFor(box);
     data.forEach((d, i) => {
-      const c = d.station === '城野駅' ? C0() : 'var(--color-fg-muted)';
+      const c = COL[d.station];
       const path = svg.append('path').attr('d', d3.line(p => x(p.y), p => y(p.v))(d.pts)).attr('fill', 'none').attr('stroke', c).attr('stroke-width', 2.4);
-      if (!drawn.stn && motion) { const L = path.node().getTotalLength(); path.style('--len', L).attr('stroke-dasharray', L).style('animation', `kq-draw 900ms ${i * 200}ms var(--cds-ease-out) both`); }
-      d.pts.forEach(p => { svg.append('circle').attr('cx', x(p.y)).attr('cy', y(p.v)).attr('r', 3.2).attr('fill', c); text(svg, x(p.y), y(p.v) - 7, String(p.v), { anchor: 'middle', fill: 'var(--color-fg)' }); });
+      if (d.station === '北方駅') path.attr('stroke-dasharray', '5 3');
+      else if (!drawn.stn && motion) { const L = path.node().getTotalLength(); path.style('--len', L).attr('stroke-dasharray', L).style('animation', `kq-draw 900ms ${i * 200}ms var(--cds-ease-out) both`); }
+      d.pts.forEach(p => svg.append('circle').attr('cx', x(p.y)).attr('cy', y(p.v)).attr('r', 3.6).attr('fill', c)
+        .on('pointermove', () => { const { sx, sy } = scaleXY(box, W, H); showTip(box, tip, [['t', `${d.station}（${p.y}年）`], [null, `${p.v}件`]], x(p.y) * sx, y(p.v) * sy - 6); })
+        .on('pointerleave', () => { tip.hidden = true; }));
+      starts.push({ y: y(d.pts[0].v) + 4, v: d.pts[0].v, c });
       const last = d.pts[d.pts.length - 1];
-      text(svg, x(last.y) + 8, y(last.v) + 4, d.station, { anchor: 'start', fill: c, weight: 600 });
+      ends.push({ y: y(last.v) + 4, d, last, c });
     });
+    spread(starts, 13, m.t, H - m.b).forEach(e => text(svg, x(YS[0]) - 7, e.y, String(e.v), { anchor: 'end', fill: e.c, weight: 600 }));
+    spread(ends, 13, m.t, H - m.b).forEach(e => text(svg, x(YS[YS.length - 1]) + 8, e.y, `${e.d.station} ${e.last.v}`, { anchor: 'start', fill: e.c, weight: 600 }));
     drawn.stn = true;
   }
   dash.onData(() => {
