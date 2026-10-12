@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<meta name="author" content="山本啓一（北陸大学経済経営学部）">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>北九州市の治安情勢</title>
 <meta name="description" content="福岡県警察の認知件数統計と犯罪オープンデータ、福岡県の推計人口から、北九州市の治安と小倉南区の自転車盗を三つの問いで確かめるダッシュボード（2026年10月、山本啓一）">
@@ -168,7 +169,7 @@ window.dash = (() => {
 <div class="kq">
   <header class="kq-head" id="top">
     <h1>北九州市の治安情勢</h1>
-    <p class="kq-ver">第1版　2026年10月12日更新</p>
+    <p class="kq-ver">作成：山本啓一（北陸大学経済経営学部 教授）　第1版　2026年10月12日更新</p>
     <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した推計人口（各年10月1日現在）をもとに、次の三つの問いについて検討した。最後に、犯罪機会論・防犯環境設計（CPTED）の観点から対策を提言する。</p>
     <nav class="kq-path" aria-label="分析の流れ" data-source="flowsteps">
       <a href="#q1"><span class="q">問1</span>北九州市の刑法犯 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件</a><span class="arr" aria-hidden="true">→</span>
@@ -376,7 +377,7 @@ window.dash = (() => {
   </section>
 
   <footer class="kq-foot">
-    <p>第1版（2026年10月12日更新）。刑法犯は2025年確定値まで、犯罪オープンデータは2025年分までを反映している。</p>
+    <p>作成：山本啓一（北陸大学経済経営学部 教授）。第1版（2026年10月12日更新）。刑法犯は2025年確定値まで、犯罪オープンデータは2025年分までを反映している。</p>
     <p>資料：福岡県警察「刑法犯 市区町村別認知件数」（各年確定値）、福岡県警察「犯罪オープンデータ（自転車盗）」（2018〜2025年）、福岡県「福岡県の人口と世帯年報」（推計人口、各年10月1日現在）。</p>
     <p>人口当たりの値は、認知件数を同じ年の福岡県推計人口（10月1日現在）で割った値である。オープンデータの交番名は2023年から「交番」の語が省かれているため、同じ交番として扱った。発生時刻が不明の件数は、時刻別の集計から除いた。オープンデータで分かる発生場所は町丁目までであり、どの駐輪場で起きたかは分からない。</p>
   </footer>
