@@ -188,8 +188,8 @@ window.dash = (() => {
         <p class="note">人口は2020年と2025年の国勢調査による。2018〜2019年は2020年の人口を用い、2021〜2024年は両年の間を直線で補った。地図：みんなの行政地図</p>
       </div>
       <div class="kq-card">
-        <h3 id="muni-title">市町村別、人口千人当たり認知件数（2025年）</h3>
-        <p class="note">縦の破線は県平均である。ボタンで罪種と対象の市町村を切り替えられる。北九州市は青、福岡市は濃い灰色で示した。罪種のボタンは地図にも反映される。</p>
+        <h3 id="muni-title">市町村別、人口千人当たり認知件数（2018〜2025年）</h3>
+        <p class="note">縦の破線はその年の県平均である。ボタンで罪種と対象の市町村を切り替えられる。北九州市は青、福岡市は濃い灰色で示した。罪種のボタンは地図にも反映され、年は地図のスライダーと「再生」に連動する。「人口10万人以上」は2025年の人口による。</p>
         <div class="kq-ctrl">
           <span role="group" aria-label="罪種" class="kq-ctrl">
             <button class="kq-btn" type="button" data-mm="total" aria-pressed="true">刑法犯総数</button>
@@ -203,8 +203,9 @@ window.dash = (() => {
             <button class="kq-btn" type="button" data-mf="big" aria-pressed="true">人口10万人以上</button>
             <button class="kq-btn" type="button" data-mf="all" aria-pressed="false">全60市町村</button>
           </span>
+          <span class="kq-yearlab" id="muni-year">2025年</span>
         </div>
-        <div class="kq-chart" id="muni-chart" data-source="munirates prefrates"></div>
+        <div class="kq-chart" id="muni-chart" data-source="munirates_years prefrates_years"></div>
       </div>
       <div class="kq-card">
         <h3 id="type-title">北九州市の罪種・手口別の対県比（2025年）</h3>
@@ -393,6 +394,34 @@ window.dash = (() => {
       METRICS.forEach(m => { o[m] = r1(Number(r[m]) / Number(r.pop) * 1000); });
       return o;
     })
+  });
+  dash.calc('munirates_years', {
+    inputs: ['map_years', 'muni2025'], title: '市町村別の人口千人当たり件数（年別）',
+    description: '各市町村の各年の認知件数を人口で割り、1,000を掛けたもの。北九州市・福岡市は区の合計。人口は2020年・2025年国勢調査（2018〜2019年は2020年の値、2021〜2024年は直線補間）。',
+    fn: (map_years, muni2025) => {
+      const KKW = ['門司区', '若松区', '戸畑区', '小倉北区', '小倉南区', '八幡東区', '八幡西区'];
+      const FKW = ['東区', '博多区', '中央区', '南区', '西区', '城南区', '早良区'];
+      const city = n => KKW.includes(n) ? '北九州市' : FKW.includes(n) ? '福岡市' : n;
+      const info = new Map(muni2025.map(r => [r.name, r]));
+      const acc = new Map();
+      map_years.forEach(r => {
+        const k = city(r.name) + '|' + r.year;
+        const o = acc.get(k) || { name: city(r.name), year: Number(r.year), pop: 0 };
+        o.pop += Number(r.pop); METRICS.forEach(m => { o[m] = (o[m] || 0) + Number(r[m]); });
+        acc.set(k, o);
+      });
+      return [...acc.values()].map(o => {
+        const base = info.get(o.name) || {};
+        const out = { name: o.name, year: o.year, kind: base.kind || '', pop2025: Number(base.pop || o.pop) };
+        METRICS.forEach(m => { out[m] = r1(o[m] / o.pop * 1000); });
+        return out;
+      });
+    }
+  });
+  dash.calc('prefrates_years', {
+    inputs: ['pref_years'], title: '県平均の人口千人当たり件数（年別）',
+    description: '福岡県全体の各年の認知件数を県人口で割り、1,000を掛けたもの。',
+    fn: (pref_years) => pref_years.map(r => { const o = { year: Number(r.year) }; METRICS.forEach(m => { o[m] = r1(Number(r[m]) / Number(r.pop) * 1000); }); return o; })
   });
   dash.calc('prefrates', {
     inputs: ['pref2025'], title: '県平均の人口千人当たり件数',
@@ -616,10 +645,11 @@ window.dash = (() => {
   root.querySelectorAll('[data-mf]').forEach(b => b.addEventListener('click', () => { mf = b.getAttribute('data-mf'); pressGroup('data-mf', mf); drawMuni(false); }));
   function drawMuni(trans) {
     const box = document.getElementById('muni-chart');
-    if (!need(box, ['munirates', 'prefrates'])) return;
-    const pref = dash.data('prefrates').data[0];
-    let rows = dash.data('munirates').data.slice();
-    if (mf === 'big') rows = rows.filter(r => r.pop >= 100000);
+    if (!need(box, ['munirates_years', 'prefrates_years'])) return;
+    const pref = dash.data('prefrates_years').data.find(r => Number(r.year) === py);
+    let rows = dash.data('munirates_years').data.filter(r => Number(r.year) === py);
+    document.getElementById('muni-year').textContent = py + '年';
+    if (mf === 'big') rows = rows.filter(r => r.pop2025 >= 100000);
     rows.sort((a, b) => b[mm] - a[mm]);
     const W = Math.max(300, box.clientWidth), rowH = mf === 'big' ? 30 : 17, m = { t: 22, r: 50, b: 6, l: 76 }, H = m.t + m.b + rows.length * rowH;
     const xmax = d3.max(rows, r => r[mm]) * 1.05;
@@ -1030,10 +1060,10 @@ window.dash = (() => {
   pPlay.addEventListener('click', () => {
     if (pTimer) { stopP(); return; }
     pPlay.setAttribute('aria-pressed', 'true'); pPlay.textContent = '停止';
-    py = 2018; drawPrefMap(true);
-    pTimer = setInterval(() => { py += 1; if (py > 2025) { py = 2025; stopP(); return; } drawPrefMap(true); }, 1300);
+    py = 2018; drawPrefMap(true); drawMuni(true);
+    pTimer = setInterval(() => { py += 1; if (py > 2025) { py = 2025; stopP(); return; } drawPrefMap(true); drawMuni(true); }, 1300);
   });
-  document.getElementById('pmap-range').addEventListener('input', ev => { stopP(); py = Number(ev.target.value); drawPrefMap(true); });
+  document.getElementById('pmap-range').addEventListener('input', ev => { stopP(); py = Number(ev.target.value); drawPrefMap(true); drawMuni(true); });
   let tTimer = null;
   const tPlay = document.getElementById('tmap-play');
   function stopT() { if (tTimer) { clearInterval(tTimer); tTimer = null; } tPlay.setAttribute('aria-pressed', 'false'); tPlay.textContent = '再生'; }
