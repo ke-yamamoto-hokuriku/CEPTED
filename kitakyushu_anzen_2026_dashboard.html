@@ -365,8 +365,9 @@ window.dash = (() => {
       </div>
       <div class="kq-hyp">
         <span class="h">共通｜効果の検証</span>
-        <div><div class="kq-big"><span class="v" data-fmt="sint" data-source="sone_peak" data-field="diff" data-row="0">—</span>件</div><p>曽根交番管内の2024年6〜10月の件数の、前年同期からの増加（<span class="v" data-fmt="int" data-source="sone_peak" data-field="y2023" data-row="0">—</span>件→<span class="v" data-fmt="int" data-source="sone_peak" data-field="y2024" data-row="0">—</span>件。翌年同期は <span class="v" data-fmt="int" data-source="sone_peak" data-field="y2025" data-row="0">—</span>件）</p></div>
-        <div class="kq-chart" id="sone-bars" data-source="sone_peak" style="min-height: 120px" aria-label="曽根交番管内の6〜10月の件数（2023〜2025年）"></div>
+        <div><div class="kq-big"><span class="v" data-fmt="int" data-source="sone_peak" data-field="jun2024" data-row="0">—</span>件</div><p>曽根交番管内の2024年6月の件数（前年同月は <span class="v" data-fmt="int" data-source="sone_peak" data-field="jun2023" data-row="0">—</span>件）。この月から急増が始まった。</p></div>
+        <div class="kq-chart" id="sone-bars" data-source="sone_monthly" style="min-height: 140px" aria-label="曽根交番管内の月別件数（2023〜2025年を重ねたもの）"></div>
+        <p class="note">曽根交番管内の月別件数を、2023〜2025年で重ねたもの。</p>
         <h3 class="kq-prop"><span class="pn">提言6</span>交番管内別の月次件数の共有</h3>
         <p>曽根交番管内の件数は2024年6月から急に増え、10月まで高い水準が続いた。月ごとの件数を見ていれば、増え始めた時点で気づくことができた。区役所と警察署が交番管内別の月次件数を共有し、急な増加を早く捉えて対策を打てるようにしたい。対策の効果も、区全体の件数ではなく、対策した駐輪場の周辺で被害が何件減ったかで確かめることが望ましい。</p>
       </div>
@@ -530,7 +531,7 @@ window.dash = (() => {
   dash.calc('sone_peak', {
     inputs: ['sone_monthly'], title: '曽根交番管内の6〜10月の件数',
     description: '曽根交番管内の自転車盗の6〜10月の合計（2023〜2025年）。',
-    fn: (m) => { const s = y => d3.sum(m.filter(r => r.month >= y + '-06' && r.month <= y + '-10'), r => Number(r.count)); return [{ y2023: s(2023), y2024: s(2024), y2025: s(2025), diff: s(2024) - s(2023) }]; }
+    fn: (m) => { const s = y => d3.sum(m.filter(r => r.month >= y + '-06' && r.month <= y + '-10'), r => Number(r.count)); const mo = k => Number((m.find(r => r.month === k) || { count: 0 }).count); return [{ y2023: s(2023), y2024: s(2024), y2025: s(2025), diff: s(2024) - s(2023), jun2023: mo('2023-06'), jun2024: mo('2024-06'), jun2025: mo('2025-06') }]; }
   });
   dash.calc('flowsteps', {
     inputs: ['kk_cats', 'ward_cats', 'minami_koban'], title: '分析の流れ（2025年の件数）',
@@ -1205,19 +1206,30 @@ window.dash = (() => {
   }
   function drawSoneBars() {
     const box = document.getElementById('sone-bars');
-    if (!need(box, ['sone_peak'])) return;
-    const r = dash.data('sone_peak').data[0];
-    const rows = [2023, 2024, 2025].map(yy => ({ y: yy, v: Number(r['y' + yy]) }));
-    const W = Math.max(240, box.clientWidth), H = 120, m = { t: 18, r: 10, b: 20, l: 10 };
-    const x = d3.scaleBand(rows.map(d => d.y), [m.l, W - m.r]).padding(.35), y = d3.scaleLinear([0, d3.max(rows, d => d.v) * 1.1], [H - m.b, m.t]);
+    if (!need(box, ['sone_monthly'])) return;
+    const all = dash.data('sone_monthly').data.map(r => ({ y: Number(String(r.month).slice(0, 4)), mo: Number(String(r.month).slice(5, 7)), v: Number(r.count) }));
+    const YS = [2023, 2024, 2025];
+    const W = Math.max(240, box.clientWidth), H = 140, m = { t: 12, r: 46, b: 20, l: 24 };
+    const x = d3.scaleLinear([1, 12], [m.l, W - m.r]), y = d3.scaleLinear([0, d3.max(all, d => d.v) * 1.1], [H - m.b, m.t]);
     const svg = svgFor(box, W, H, box.id);
+    svg.append('rect').attr('x', x(5.5)).attr('width', x(10.5) - x(5.5)).attr('y', m.t).attr('height', H - m.b - m.t).attr('fill', 'var(--kq-hl)');
     svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', H - m.b).attr('y2', H - m.b).attr('stroke', 'var(--cds-chart-axis)');
-    rows.forEach((d, i) => {
-      const b = svg.append('rect').attr('x', x(d.y)).attr('width', x.bandwidth()).attr('y', y(d.v)).attr('height', y(0) - y(d.v)).attr('rx', 3).attr('fill', d.y === 2024 ? C0() : MUTED);
-      if (!drawn.sone && motion) b.classed('a-grow', true).style('animation-delay', (i * 90) + 'ms');
-      text(svg, x(d.y) + x.bandwidth() / 2, y(d.v) - 5, d.v + '件', { anchor: 'middle', fill: 'var(--color-fg)', weight: d.y === 2024 ? 600 : 400 });
-      text(svg, x(d.y) + x.bandwidth() / 2, H - 5, d.y + '年', { anchor: 'middle', fill: 'var(--color-fg-muted)' });
+    [1, 6, 10, 12].forEach(v => text(svg, x(v), H - 5, v + '月', { anchor: 'middle', fill: 'var(--color-fg-muted)' }));
+    y.ticks(3).forEach(v => text(svg, m.l - 5, y(v) + 4, v, { anchor: 'end', fill: 'var(--color-fg-muted)' }));
+    const ends = [], tip = tipFor(box);
+    YS.forEach((yy, i) => {
+      const pts = all.filter(d => d.y === yy).sort((a, b) => a.mo - b.mo);
+      const hl = yy === 2024, c = hl ? C0() : 'var(--color-fg-muted)';
+      const path = svg.append('path').attr('d', d3.line(d => x(d.mo), d => y(d.v))(pts)).attr('fill', 'none').attr('stroke', c).attr('stroke-width', hl ? 2.6 : 1.6).attr('stroke-linejoin', 'round');
+      if (yy === 2025) path.attr('stroke-dasharray', '4 3');
+      if (hl && !drawn.sone && motion) { const L = path.node().getTotalLength(); path.style('--len', L).attr('stroke-dasharray', L).style('animation', 'kq-draw 1100ms 200ms var(--cds-ease-out) both'); }
+      pts.forEach(d => svg.append('circle').attr('cx', x(d.mo)).attr('cy', y(d.v)).attr('r', hl ? 2.8 : 2).attr('fill', c)
+        .on('pointermove', () => { const { sx, sy } = scaleXY(box, W, H); showTip(box, tip, [['t', `${yy}年${d.mo}月`], [null, `${d.v}件`]], x(d.mo) * sx, y(d.v) * sy - 6); })
+        .on('pointerleave', () => { tip.hidden = true; }));
+      const last = pts[pts.length - 1];
+      ends.push({ y: y(last.v) + 4, t: yy + '年', c, hl });
     });
+    spread(ends, 12, m.t, H - m.b).forEach(e => text(svg, W - m.r + 6, e.y, e.t, { anchor: 'start', fill: e.c, weight: e.hl ? 600 : 400 }));
     drawn.sone = true;
   }
   dash.onData(() => {
