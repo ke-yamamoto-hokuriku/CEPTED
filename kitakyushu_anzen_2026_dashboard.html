@@ -257,8 +257,9 @@ window.dash = (() => {
         <h3 id="heat-title">区別・罪種別の認知件数</h3>
         <p class="note">色が濃いほど値が大きい。「増減」では青が増加、灰色が減少を表す。知能犯の多くは詐欺であり、被害者の住む区で認知されることが多いとみられる。</p>
         <div class="kq-ctrl" role="group" aria-label="指標">
-          <button class="kq-btn" type="button" data-hm="change" aria-pressed="true">増減（2021→2025年）</button>
+          <button class="kq-btn" type="button" data-hm="count" aria-pressed="true">認知件数（2025年）</button>
           <button class="kq-btn" type="button" data-hm="rate" aria-pressed="false">人口千人当たり（2025年）</button>
+          <button class="kq-btn" type="button" data-hm="change" aria-pressed="false">増減（2021→2025年）</button>
         </div>
         <div class="kq-chart" id="heat-chart" data-source="wardinc"></div>
       </div>
@@ -491,9 +492,9 @@ window.dash = (() => {
     }
   });
   dash.calc('wardinc', {
-    inputs: ['ward_cats'], title: '区別・罪種別の増減と人口当たり件数',
-    description: '各区の2025年の件数から2021年の件数を引いた増減と、2025年の件数を福岡県推計人口（2025年10月1日現在）で割り1,000を掛けた値。',
-    fn: (ward_cats) => ward_cats.map(r => ({ key: r.ward + '|' + r.category, ward: r.ward, category: r.category, change: Number(r.c2025) - Number(r.c2021), rate: r1(Number(r.c2025) / Number(r.pop) * 1000) }))
+    inputs: ['ward_cats'], title: '区別・罪種別の認知件数・人口当たり件数・増減',
+    description: '各区の2025年の認知件数、2025年の件数から2021年の件数を引いた増減、2025年の件数を福岡県推計人口（2025年10月1日現在）で割り1,000を掛けた値。',
+    fn: (ward_cats) => ward_cats.map(r => ({ key: r.ward + '|' + r.category, ward: r.ward, category: r.category, count: Number(r.c2025), change: Number(r.c2025) - Number(r.c2021), rate: r1(Number(r.c2025) / Number(r.pop) * 1000) }))
   });
   dash.calc('minami_lockshare', {
     inputs: ['minami_lock'], title: '小倉南区の無施錠の割合',
@@ -838,7 +839,7 @@ window.dash = (() => {
     drawn.stack = true;
   }
 
-  let hm = 'change';
+  let hm = 'count';
   root.querySelectorAll('[data-hm]').forEach(b => b.addEventListener('click', () => { hm = b.getAttribute('data-hm'); pressGroup('data-hm', hm); drawHeat(); }));
   function drawHeat() {
     const box = document.getElementById('heat-chart');
@@ -872,7 +873,7 @@ window.dash = (() => {
       const v = r[hm];
       const cell = svg.append('rect').attr('x', x(r.category)).attr('y', y(r.ward)).attr('width', x.bandwidth()).attr('height', y.bandwidth()).attr('rx', 3).attr('fill', fill(v));
       if (first && motion) cell.classed('a-fade', true).style('animation-delay', (cats.indexOf(r.category) * 50 + wards.indexOf(r.ward) * 30) + 'ms');
-      if (x.bandwidth() > 22) text(svg, x(r.category) + x.bandwidth() / 2, y(r.ward) + y.bandwidth() / 2 + 4, hm === 'change' ? fmt.sint(v) : (x.bandwidth() > 34 ? fmt.n2(v) : d3.format('.1f')(v)),
+      if (x.bandwidth() > 22) text(svg, x(r.category) + x.bandwidth() / 2, y(r.ward) + y.bandwidth() / 2 + 4, hm === 'change' ? fmt.sint(v) : hm === 'count' ? fmt.int(v) : (x.bandwidth() > 34 ? fmt.n2(v) : d3.format('.1f')(v)),
         { anchor: 'middle', fill: dark(v) ? 'var(--color-panel)' : 'var(--color-fg)', weight: dark(v) ? 600 : 400, size: x.bandwidth() > 34 ? 'var(--cds-font-size-caption)' : '9px' });
     });
     const tip = tipFor(box);
@@ -883,7 +884,7 @@ window.dash = (() => {
         if (!c || !w) { tip.hidden = true; return; }
         const r = rows.find(r => r.ward === w && r.category === c);
         const { sx, sy } = scaleXY(box, W, H);
-        showTip(box, tip, [['t', `${w}・${c}`], [null, `増減（2021→2025年）　${fmt.sint(r.change)}件`], [null, `人口千人当たり（2025年）　${fmt.n2(r.rate)}`]], (x(c) + x.bandwidth() / 2) * sx, y(w) * sy);
+        showTip(box, tip, [['t', `${w}・${c}`], [null, `認知件数（2025年）　${fmt.int(r.count)}件`], [null, `増減（2021→2025年）　${fmt.sint(r.change)}件`], [null, `人口千人当たり（2025年）　${fmt.n2(r.rate)}`]], (x(c) + x.bandwidth() / 2) * sx, y(w) * sy);
       }).on('pointerleave', () => { tip.hidden = true; });
     drawn.heat = true;
   }
