@@ -701,7 +701,7 @@ window.dash = (() => {
     const x = d3.scaleLinear([0, Math.max(1.4, d3.max(rows, r => r.ratio) * 1.08)], [m.l, W - m.r]);
     const y = d3.scaleBand(rows.map(r => r.type), [m.t, H - m.b]).padding(.3);
     const svg = svgFor(box, W, H, 'type-title');
-    const lab = W < 380 ? (s => s.replace('（空き巣・忍込み・居空き）', '')) : (s => s);
+    const lab = s => s.replace('（空き巣・忍込み・居空き）', '');
     rows.forEach((r, i) => {
       text(svg, m.l - 8, y(r.type) + y.bandwidth() / 2 + 4, (r.group === '手口' ? '　' : '') + lab(r.type), { anchor: 'end', fill: r.group === '罪種' ? 'var(--color-fg)' : 'var(--color-fg-muted)' });
       const over = r.ratio >= 1.1;
