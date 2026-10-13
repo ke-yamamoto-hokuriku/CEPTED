@@ -402,19 +402,11 @@ window.dash = (() => {
         <span class="h">自転車盗｜抵抗性（管理意識）</span>
         <div><div class="kq-big"><span class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</span></div><p>小倉南区で盗まれた自転車のうち無施錠のもの（2025年）</p></div>
         <h3 class="kq-prop"><span class="pn">提言1</span>学校単位の施錠指導と探究学習</h3>
-        <figure class="kq-photo"><img data-photo="shimosone" alt="下曽根駅の駐輪場。屋内に2段式ラックが並び、奥に管理人室がある"><figcaption>下曽根駅の駐輪場（2024年、筆者撮影）。管理人が常駐し、設備も整っている。</figcaption></figure>
-        <p>盗まれた自転車の約7割は鍵がかかっていなかった。被害者には中高生が多く、朝夕の通学時間帯に集中している。下曽根駅の駐輪場でも、2024年2月の視察の時点で、高校生の自転車に鍵のかかっていないものが目立っていた。駐輪場の設備を整えても、鍵がかかっていなければ被害は防げない。区役所と学校が組み、学校単位で生徒に二重ロックを呼びかけることが、最も効果の見込める対策である。探究学習のテーマとして取り上げ、生徒自身に駐輪場の施錠率や被害の多い場所を調べさせ、対策を考えさせる方法もある。教えられるより、自分たちで調べたことのほうが行動につながりやすい。</p>
+        <p>盗まれた自転車の約7割は鍵がかかっていなかった。2023〜2025年の小倉南区では、無施錠の割合が中学生 <b class="v" data-fmt="pct" data-source="lock_victim_rate" data-field="rate" data-where="area=小倉南区&amp;victim=中学生">—</b>、高校生 <b class="v" data-fmt="pct" data-source="lock_victim_rate" data-field="rate" data-where="area=小倉南区&amp;victim=高校生">—</b> で、学生以外の被害者（<b class="v" data-fmt="pct" data-source="lock_victim_rate" data-field="rate" data-where="area=小倉南区&amp;victim=その他">—</b>）より10ポイント高い。県内の市区町ごとに比べても、被害者に占める中高生の割合が高いところほど無施錠の割合が高い（相関係数 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=全体">—</b>）。通学の自転車が多い地域では、地域全体で施錠の習慣が弱い可能性がある。下曽根駅の駐輪場でも、2024年2月の視察の時点で、高校生の自転車に鍵のかかっていないものが目立っていた。駐輪場の設備を整備しても、鍵がかかっていなければ被害は防げない。</p>
+        <p>区役所と学校が組み、学校単位で生徒に二重ロックを呼びかけることが、最も効果の見込める対策だろう。呼びかけにとどめず、探究学習のテーマとして取り上げる方法もある。生徒自身が学校の駐輪場で施錠の有無を数え、オープンデータの数字と比べて、対策を考える。教えられるより、自分たちで調べたことのほうが行動につながりやすい。同じ数え方を対策の前後でくり返せば、効果の検証（提言6）にも使える。</p>
         </div>
         <div class="kq-col">
-        <h3 id="lockv-title" class="kq-sub">被害者ごとの無施錠率（2023〜2025年）</h3>
-        <div class="kq-ctrl" role="group" aria-label="地域">
-          <button class="kq-btn" type="button" data-lv="小倉南区" aria-pressed="true">小倉南区</button>
-          <button class="kq-btn" type="button" data-lv="北九州市" aria-pressed="false">北九州市</button>
-          <button class="kq-btn" type="button" data-lv="福岡県" aria-pressed="false">福岡県</button>
-        </div>
-        <div class="kq-chart" id="lockv-chart" data-source="lock_victim_rate" style="min-height: 150px"></div>
-        <p class="note">盗まれた自転車のうち無施錠のものの割合。「その他」は学生以外の被害者（社会人など）。括弧内は件数。</p>
-        <p>中学生・高校生の無施錠率は、小倉南区・北九州市・福岡県のいずれで見ても、学生以外の被害者より9〜17ポイント高い。県内の市区町（3年間の件数が150件以上の35市区町）ごとに見ると、被害者に占める中高生の割合が高いところほど、無施錠率も高い（相関係数 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=全体">—</b>）。学生以外の被害者に限っても同じ傾向が見られる（同 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=学生以外">—</b>）。通勤の自転車が多い都市部より、通学の自転車が多い地域のほうが、地域全体で施錠の習慣が弱い可能性がある。ただし地域単位の相関であり、駐輪場の管理状況など、ほかの違いが関わっている可能性もある。こうした数字は、生徒が自分の学校の駐輪場で施錠の有無を数え、オープンデータの数字と比べる探究学習の題材になる。同じ数え方を対策の前後でくり返せば、効果の検証（提言6）にも使える。</p>
+        <figure class="kq-photo"><img data-photo="shimosone" alt="下曽根駅の駐輪場。屋内に2段式ラックが並び、奥に管理人室がある"><figcaption>下曽根駅の駐輪場（2024年、筆者撮影）。管理人が常駐し、設備も整っている。</figcaption></figure>
         </div>
       </div>
       <div class="kq-hyp">
@@ -1378,7 +1370,6 @@ window.dash = (() => {
     hm: { ok: v => ['count', 'rate', 'change'].includes(v), get: () => hm, def: 'count', set: v => { hm = v; pressGroup('data-hm', v); } },
     by: { ok: v => YEARS.includes(Number(v)), get: () => by, def: '2024', set: v => { by = v; pressGroup('data-by', v); } },
     ty: { ok: v => ['2025', '2026'].includes(v), get: () => ty, def: '2025', set: v => { ty = v; pressGroup('data-ty', v); } },
-    lv: { ok: v => ['mn', 'kk', 'fk'].includes(v), get: () => ({ 小倉南区: 'mn', 北九州市: 'kk', 福岡県: 'fk' })[lv], def: 'mn', set: v => { lv = ({ mn: '小倉南区', kk: '北九州市', fk: '福岡県' })[v]; pressGroup('data-lv', lv); } },
     ba: { ok: v => ['kk', 'mn'].includes(v), get: () => ba === '小倉南区' ? 'mn' : 'kk', def: 'kk', set: v => { ba = v === 'mn' ? '小倉南区' : '北九州市'; pressGroup('data-ba', ba); } },
     st: { ok: v => /^\d+$/.test(v) && STACK_BASE[Number(v)] !== undefined, get: () => stackSel ? String(STACK_BASE.indexOf(stackSel)) : '', def: '', set: v => { stackSel = STACK_BASE[Number(v)]; } }
   };
@@ -1407,30 +1398,6 @@ window.dash = (() => {
   window.addEventListener('beforeprint', fillPrintNote);
   fillPrintNote();
 
-  let lv = '小倉南区';
-  root.querySelectorAll('[data-lv]').forEach(b => b.addEventListener('click', () => { lv = b.getAttribute('data-lv'); pressGroup('data-lv', lv); drawLockVictim(); linkTo('lockv-title'); }));
-  function drawLockVictim() {
-    const box = document.getElementById('lockv-chart');
-    if (!need(box, ['lock_victim_rate'])) return;
-    const order = ['小学生', '中学生', '高校生', '大学生', 'その他'];
-    const rows = dash.data('lock_victim_rate').data.filter(r => r.area === lv).sort((a, b) => order.indexOf(a.victim) - order.indexOf(b.victim));
-    const W = Math.max(260, box.clientWidth), rowH = 26, m = { t: 6, r: 92, b: 6, l: 56 }, H = m.t + m.b + rows.length * rowH;
-    const x = d3.scaleLinear([0, 1], [m.l, W - m.r]);
-    const y = d3.scaleBand(rows.map(r => r.victim), [m.t, H - m.b]).padding(.3);
-    const svg = svgFor(box, W, H, 'lockv-title');
-    const tip = tipFor(box);
-    rows.forEach((r, i) => {
-      const hl = r.victim === '中学生' || r.victim === '高校生';
-      text(svg, m.l - 8, y(r.victim) + y.bandwidth() / 2 + 4, r.victim, { anchor: 'end', fill: hl ? 'var(--color-fg)' : 'var(--color-fg-muted)', weight: hl ? 600 : 400 });
-      svg.append('rect').attr('x', m.l).attr('y', y(r.victim)).attr('width', x(1) - m.l).attr('height', y.bandwidth()).attr('rx', 3).attr('fill', 'var(--cds-chart-grid)');
-      const b = svg.append('rect').attr('x', m.l).attr('y', y(r.victim)).attr('width', x(r.rate) - m.l).attr('height', y.bandwidth()).attr('rx', 3).attr('fill', hl ? C0() : MUTED);
-      if (!drawn.lockv && motion) b.classed('a-growx', true).style('animation-delay', (i * 60) + 'ms');
-      b.on('pointermove', () => { const { sx, sy } = scaleXY(box, W, H); showTip(box, tip, [['t', `${lv}・${r.victim}`], [null, `無施錠 ${d3.format('.0%')(r.rate)}（${fmt.int(r.cases)}件中）`]], x(r.rate) * sx, y(r.victim) * sy); }).on('pointerleave', () => { tip.hidden = true; });
-      text(svg, x(r.rate) + 5, y(r.victim) + y.bandwidth() / 2 + 4, d3.format('.0%')(r.rate), { fill: 'var(--color-fg)', weight: hl ? 600 : 400 });
-      text(svg, W - m.r + 40, y(r.victim) + y.bandwidth() / 2 + 4, `（${fmt.int(r.cases)}）`, { fill: 'var(--color-fg-muted)' });
-    });
-    drawn.lockv = true;
-  }
   let ba = '北九州市';
   root.querySelectorAll('[data-ba]').forEach(b => b.addEventListener('click', () => { ba = b.getAttribute('data-ba'); pressGroup('data-ba', ba); drawJansep(); linkTo('jansep-title'); }));
   function drawJansep() {
@@ -1461,7 +1428,7 @@ window.dash = (() => {
     fillValues();
     drawMuni(false); drawPrefMap(false); drawTypes(); drawShare();
     drawIncrease(); drawStack(); drawHeat();
-    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawPlace(); drawLock(); drawHour(); drawStation(); drawPhotos(); drawMiniLine('fraud-line', '知能犯'); drawMiniLine('shop-line', '万引き'); drawSoneBars(); drawJansep(); drawLockVictim();
+    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawPlace(); drawLock(); drawHour(); drawStation(); drawPhotos(); drawMiniLine('fraud-line', '知能犯'); drawMiniLine('shop-line', '万引き'); drawSoneBars(); drawJansep();
   }
   // 印刷の直前に用紙の幅（A4縦）で描き直し、終わったら画面の幅に戻す
   // 描き直しの遷移（d3 transition）は印刷前に終わらせておく
