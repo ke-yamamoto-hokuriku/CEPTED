@@ -1173,7 +1173,10 @@ window.dash = (() => {
     const rows = allRows.filter(d => Number(d.year) === py);
     document.getElementById('pmap-year').textContent = py + '年';
     document.getElementById('pmap-range').value = py;
-    const W = Math.max(280, box.clientWidth);
+    // 地図の高さを画面の高さの半分程度（最大400px）に抑え、幅を縦横比から決める
+    const PM = (window.KQ_MAP || {}).pref;
+    if (PM) { const maxH = Math.min(400, Math.max(260, window.innerHeight * .5)); box.style.maxWidth = Math.round(maxH * PM.w / PM.h) + 'px'; box.style.marginInline = 'auto'; box.style.width = '100%'; }
+    const W = Math.max(240, box.clientWidth);
     let svg = d3.select(box).select('svg'), H;
     if (!trans || svg.empty() || Number(svg.attr('data-w')) !== W) { const b = mapBase(box, 'pref', W, 'pmap-title'); if (!b) return; svg = b.svg; H = b.H; svg.append('g').attr('class', 'dots'); }
     else H = Number(svg.attr('viewBox').split(' ')[3]);
