@@ -414,10 +414,7 @@ window.dash = (() => {
         </div>
         <div class="kq-chart" id="lockv-chart" data-source="lock_victim_rate" style="min-height: 150px"></div>
         <p class="note">盗まれた自転車のうち無施錠のものの割合。「その他」は学生以外の被害者（社会人など）。括弧内は件数。</p>
-        <h3 id="locka-title" class="kq-sub">中高生の被害の割合と無施錠率（県内35市区町、2023〜2025年）</h3>
-        <div class="kq-chart" id="locka-chart" data-source="lock_area_rate" style="min-height: 240px"></div>
-        <p class="note">1点が1市区町（3年間の件数が150件以上のもの）。横軸は被害者に占める中学生・高校生の割合、縦軸は無施錠率。北九州市の区は青で示した。</p>
-        <p>中学生・高校生の無施錠率は、小倉南区・北九州市・福岡県のいずれで見ても、学生以外の被害者より9〜17ポイント高い。地域ごとに見ると、被害者に占める中高生の割合が高い市区町ほど、無施錠率も高い（相関係数 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=全体">—</b>）。学生以外の被害者に限っても同じ傾向が見られる（同 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=学生以外">—</b>）。通勤の自転車が多い都市部より、通学の自転車が多い地域のほうが、地域全体で施錠の習慣が弱い可能性がある。ただし地域単位の相関であり、駐輪場の管理状況など、ほかの違いが関わっている可能性もある。こうした数字は、生徒が自分の学校の駐輪場で施錠の有無を数え、オープンデータの数字と比べる探究学習の題材になる。同じ数え方を対策の前後でくり返せば、効果の検証（提言6）にも使える。</p>
+        <p>中学生・高校生の無施錠率は、小倉南区・北九州市・福岡県のいずれで見ても、学生以外の被害者より9〜17ポイント高い。県内の市区町（3年間の件数が150件以上の35市区町）ごとに見ると、被害者に占める中高生の割合が高いところほど、無施錠率も高い（相関係数 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=全体">—</b>）。学生以外の被害者に限っても同じ傾向が見られる（同 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=学生以外">—</b>）。通勤の自転車が多い都市部より、通学の自転車が多い地域のほうが、地域全体で施錠の習慣が弱い可能性がある。ただし地域単位の相関であり、駐輪場の管理状況など、ほかの違いが関わっている可能性もある。こうした数字は、生徒が自分の学校の駐輪場で施錠の有無を数え、オープンデータの数字と比べる探究学習の題材になる。同じ数え方を対策の前後でくり返せば、効果の検証（提言6）にも使える。</p>
         </div>
       </div>
       <div class="kq-hyp">
@@ -1434,27 +1431,6 @@ window.dash = (() => {
     });
     drawn.lockv = true;
   }
-  function drawLockArea() {
-    const box = document.getElementById('locka-chart');
-    if (!need(box, ['lock_area_rate'])) return;
-    const rows = dash.data('lock_area_rate').data;
-    const W = Math.max(260, box.clientWidth), H = Math.round(Math.min(320, Math.max(220, W * .7))), m = { t: 10, r: 14, b: 34, l: 42 };
-    const x = d3.scaleLinear([0, .8], [m.l, W - m.r]);
-    const y = d3.scaleLinear([.5, .9], [H - m.b, m.t]);
-    const svg = svgFor(box, W, H, 'locka-title');
-    [.5, .6, .7, .8, .9].forEach(v => { svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', 'var(--cds-chart-grid)'); text(svg, m.l - 6, y(v) + 4, d3.format('.0%')(v), { anchor: 'end' }); });
-    [0, .2, .4, .6, .8].forEach(v => text(svg, x(v), H - m.b + 16, d3.format('.0%')(v), { anchor: 'middle' }));
-    text(svg, (m.l + W - m.r) / 2, H - 4, '被害者に占める中高生の割合', { anchor: 'middle', fill: 'var(--color-fg-muted)' });
-    const tip = tipFor(box);
-    const kk = r => r.area.startsWith('北九州市'), mn = r => r.area.endsWith('小倉南区');
-    rows.slice().sort((a, b) => kk(a) - kk(b)).forEach(r => {
-      const c = svg.append('circle').attr('cx', x(r.jh_share)).attr('cy', y(r.rate)).attr('r', mn(r) ? 6 : kk(r) ? 4.5 : 4)
-        .attr('fill', kk(r) ? C0() : MUTED).attr('fill-opacity', kk(r) ? (mn(r) ? 1 : .55) : .8).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1).classed('a-fade', !drawn.locka);
-      c.on('pointermove', () => { const { sx, sy } = scaleXY(box, W, H); showTip(box, tip, [['t', r.area.replace(' ', '')], [null, `中高生の割合 ${d3.format('.0%')(r.jh_share)}`], [null, `無施錠率 ${d3.format('.0%')(r.rate)}（${fmt.int(r.cases)}件）`]], x(r.jh_share) * sx, y(r.rate) * sy - 8); }).on('pointerleave', () => { tip.hidden = true; });
-      if (mn(r)) text(svg, x(r.jh_share) + 9, y(r.rate) + 4, '小倉南区', { fill: 'var(--color-fg)', weight: 600 });
-    });
-    drawn.locka = true;
-  }
   let ba = '北九州市';
   root.querySelectorAll('[data-ba]').forEach(b => b.addEventListener('click', () => { ba = b.getAttribute('data-ba'); pressGroup('data-ba', ba); drawJansep(); linkTo('jansep-title'); }));
   function drawJansep() {
@@ -1485,7 +1461,7 @@ window.dash = (() => {
     fillValues();
     drawMuni(false); drawPrefMap(false); drawTypes(); drawShare();
     drawIncrease(); drawStack(); drawHeat();
-    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawPlace(); drawLock(); drawHour(); drawStation(); drawPhotos(); drawMiniLine('fraud-line', '知能犯'); drawMiniLine('shop-line', '万引き'); drawSoneBars(); drawJansep(); drawLockVictim(); drawLockArea();
+    drawKoban(); drawBlocks(false); drawTownMap(false); drawMonthly(); drawPlace(); drawLock(); drawHour(); drawStation(); drawPhotos(); drawMiniLine('fraud-line', '知能犯'); drawMiniLine('shop-line', '万引き'); drawSoneBars(); drawJansep(); drawLockVictim();
   }
   // 印刷の直前に用紙の幅（A4縦）で描き直し、終わったら画面の幅に戻す
   // 描き直しの遷移（d3 transition）は印刷前に終わらせておく
