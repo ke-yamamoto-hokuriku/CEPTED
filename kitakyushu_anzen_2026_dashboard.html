@@ -424,7 +424,7 @@ window.dash = (() => {
       </div>
       <div class="kq-hyp">
         <span class="h">自転車盗｜領域性（区画性・縄張り意識）</span>
-        <div><div class="kq-big"><span class="kq-biglab">城野1丁目</span><span class="v" data-fmt="int" data-source="station_years" data-field="y2024" data-where="station=城野駅">—</span>→<span class="v" data-fmt="int" data-source="station_years" data-field="y2025" data-where="station=城野駅">—</span>件</div><p>城野駅のある城野1丁目の件数（2024→2025年）</p></div>
+        <div><div class="kq-big"><span class="kq-biglab">城野1丁目</span><span class="v" data-fmt="sint" data-source="stn_change" data-field="d2425" data-where="station=城野駅">—</span>件</div><p>城野駅のある城野1丁目の件数の増減（2024年 <span class="v" data-fmt="int" data-source="station_years" data-field="y2024" data-where="station=城野駅">—</span>件→2025年 <span class="v" data-fmt="int" data-source="station_years" data-field="y2025" data-where="station=城野駅">—</span>件）。2021年の <span class="v" data-fmt="int" data-source="station_years" data-field="y2021" data-where="station=城野駅">—</span>件から2024年まで増え続け、2025年に減った</p></div>
         <h3 class="kq-prop"><span class="pn">提言3</span>放置自転車の撤去と駐輪場の手入れ</h3>
         <figure class="kq-photo"><img data-photo="jono" alt="城野駅南駐輪場。区画表示と二重ロックの看板があり、自転車が整然と並ぶ"><figcaption>城野駅南駐輪場（2025年、筆者撮影）。区画が表示され、「二重ロック！」の看板が出ている。</figcaption></figure>
         <p>放置自転車が積み上がった駐輪場や、落書きや汚れた照明が残る場所は、管理されていないという印象を与え、犯行をためらわせる力が弱い。城野駅のある城野1丁目では、2024年から2025年にかけて件数が約3割減った。2025年秋に城野駅南の駐輪場を訪れると、2024年2月の視察で隣に積み上がっていた放置自転車は見当たらず、ラックも整然と使われていた。落書きの消去、照明器具の清掃、雑草の除去など、費用をかけずにすぐできる手入れから始めたい。区画の表示や管理者の連絡先を掲げ、駐輪場が誰かに管理されていることを示すことも、領域性を高める。</p>
@@ -553,9 +553,9 @@ window.dash = (() => {
     }
   });
   dash.calc('stn_change', {
-    inputs: ['station_years'], title: '駅のある町丁目の件数の増減（2021→2025年）',
-    description: '駅のある町丁目の件数を駅ごとに2021年と2025年で比べたもの。',
-    fn: (station_years) => station_years.map(r => ({ station: r.station, c2021: Number(r.y2021), c2025: Number(r.y2025), rate: r3((Number(r.y2025) - Number(r.y2021)) / Number(r.y2021)) }))
+    inputs: ['station_years'], title: '駅のある町丁目の件数の増減',
+    description: '駅のある町丁目の件数を駅ごとに2021年と2025年で比べたもの（増加率）と、2024年から2025年への増減数。',
+    fn: (station_years) => station_years.map(r => ({ station: r.station, c2021: Number(r.y2021), c2025: Number(r.y2025), rate: r3((Number(r.y2025) - Number(r.y2021)) / Number(r.y2021)), d2425: Number(r.y2025) - Number(r.y2024) }))
   });
   dash.calc('lock_victim_rate', {
     inputs: ['lock_by_victim'], title: '被害者ごとの無施錠率',
