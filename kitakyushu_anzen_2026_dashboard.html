@@ -96,7 +96,13 @@ window.dash = (() => {
 @media (max-width: 760px) { .kq-grid { grid-template-columns: minmax(0, 1fr); } }
 .kq-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; position: relative; }
 .kq-card.wide { grid-column: 1 / -1; }
-.kq-hyp h3.kq-sub { font-size: var(--cds-font-size-body); margin-top: var(--cds-gap-sm); }
+#q4 .kq-photo img { aspect-ratio: 16 / 9; }
+#q4 .kq-hyps { grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+.kq-hyp.kq-wide { grid-column: 1 / -1; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--cds-gap-lg); align-items: start; }
+.kq-hyp.kq-wide > .kq-col { display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
+@media (max-width: 760px) { .kq-hyp.kq-wide { grid-template-columns: minmax(0, 1fr); } }
+.kq-printing .kq-hyps > .kq-hyp.kq-wide { flex-basis: 100%; }
+.kq-hyp h3.kq-sub { font-size: var(--cds-font-size-body); margin-top: 0; }
 .kq-jansep-sum { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.7; }
 .kq-jansep-sum b { font-weight: 600; font-variant-numeric: tabular-nums; }
 .kq-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
@@ -391,12 +397,15 @@ window.dash = (() => {
     <p class="kq-lead">問1で見たとおり、北九州市は人口当たりで見れば県内で安全ではない都市とは言えない。ただし問2で見たとおり、2021年からの増加の大半は知能犯、自転車盗、万引きの三つによる。犯罪は、犯行の機会があるところで起きる。犯罪が起きやすい場所や状況に手を入れて機会を減らす防犯環境設計（CPTED）の考え方は、自転車盗と万引きの対策に適している。一方、知能犯は環境設計では防ぎにくく、だまされにくい人を増やす取組が必要である。</p>
     <p class="kq-ans"><span class="tag">提言</span>自転車盗には、駐輪場の環境整備と、学校単位の施錠指導・探究学習の二つのアプローチが有効である。知能犯（詐欺）には、AIを使って詐欺の手口を疑似体験する取り組みが有効であろう。万引きには、防犯環境設計の観点から店舗の売場を見直す。あわせて、交番管内別の月次件数を区役所と警察署が共有し、急な増加を早く捉える仕組みをつくることを提案したい。</p>
     <div class="kq-hyps">
-      <div class="kq-hyp">
+      <div class="kq-hyp kq-wide">
+        <div class="kq-col">
         <span class="h">自転車盗｜抵抗性（管理意識）</span>
         <div><div class="kq-big"><span class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</span></div><p>小倉南区で盗まれた自転車のうち無施錠のもの（2025年）</p></div>
         <h3 class="kq-prop"><span class="pn">提言1</span>学校単位の施錠指導と探究学習</h3>
         <figure class="kq-photo"><img data-photo="shimosone" alt="下曽根駅の駐輪場。屋内に2段式ラックが並び、奥に管理人室がある"><figcaption>下曽根駅の駐輪場（2024年、筆者撮影）。管理人が常駐し、設備も整っている。</figcaption></figure>
         <p>盗まれた自転車の約7割は鍵がかかっていなかった。被害者には中高生が多く、朝夕の通学時間帯に集中している。下曽根駅の駐輪場でも、2024年2月の視察の時点で、高校生の自転車に鍵のかかっていないものが目立っていた。駐輪場の設備を整えても、鍵がかかっていなければ被害は防げない。区役所と学校が組み、学校単位で生徒に二重ロックを呼びかけることが、最も効果の見込める対策である。探究学習のテーマとして取り上げ、生徒自身に駐輪場の施錠率や被害の多い場所を調べさせ、対策を考えさせる方法もある。教えられるより、自分たちで調べたことのほうが行動につながりやすい。</p>
+        </div>
+        <div class="kq-col">
         <h3 id="lockv-title" class="kq-sub">被害者ごとの無施錠率（2023〜2025年）</h3>
         <div class="kq-ctrl" role="group" aria-label="地域">
           <button class="kq-btn" type="button" data-lv="小倉南区" aria-pressed="true">小倉南区</button>
@@ -409,6 +418,7 @@ window.dash = (() => {
         <div class="kq-chart" id="locka-chart" data-source="lock_area_rate" style="min-height: 240px"></div>
         <p class="note">1点が1市区町（3年間の件数が150件以上のもの）。横軸は被害者に占める中学生・高校生の割合、縦軸は無施錠率。北九州市の区は青で示した。</p>
         <p>中学生・高校生の無施錠率は、小倉南区・北九州市・福岡県のいずれで見ても、学生以外の被害者より9〜17ポイント高い。地域ごとに見ると、被害者に占める中高生の割合が高い市区町ほど、無施錠率も高い（相関係数 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=全体">—</b>）。学生以外の被害者に限っても同じ傾向が見られる（同 <b class="v" data-fmt="n2" data-source="lock_corr" data-field="r" data-where="target=学生以外">—</b>）。通勤の自転車が多い都市部より、通学の自転車が多い地域のほうが、地域全体で施錠の習慣が弱い可能性がある。ただし地域単位の相関であり、駐輪場の管理状況など、ほかの違いが関わっている可能性もある。こうした数字は、生徒が自分の学校の駐輪場で施錠の有無を数え、オープンデータの数字と比べる探究学習の題材になる。同じ数え方を対策の前後でくり返せば、効果の検証（提言6）にも使える。</p>
+        </div>
       </div>
       <div class="kq-hyp">
         <span class="h">自転車盗｜抵抗性（恒常性）</span>
@@ -438,12 +448,16 @@ window.dash = (() => {
         <h3 class="kq-prop"><span class="pn">提言5</span>売場の見通しと出入口の見直し</h3>
         <p>万引きは、店員の目が届かない場所で起きる。防犯環境設計の観点から店舗を見直すと、高い陳列棚や柱でできた死角、レジから見えない出入口、盗まれやすい商品の置き場所などが問題になる。棚の高さを抑えて売場の見通しをよくする、出入口をレジの近くにまとめる、盗まれやすい商品をレジの近くや店員の動線上に置く、来店客に声をかけるといった対策は、費用をかけずに始められる。警察と市が、件数の多い店舗を対象に、売場の点検と改善の助言を行う仕組みをつくりたい。</p>
       </div>
-      <div class="kq-hyp">
+      <div class="kq-hyp kq-wide">
+        <div class="kq-col">
         <span class="h">共通｜認知件数の即時把握と対策の効果検証</span>
         <div class="kq-chart" id="sone-bars" data-source="sone_monthly" style="min-height: 140px" aria-label="曽根交番管内の月別件数（2023〜2025年を重ねたもの）"></div>
         <p class="note">曽根交番管内の月別件数を、2023〜2025年で重ねたもの。</p>
+        </div>
+        <div class="kq-col">
         <h3 class="kq-prop"><span class="pn">提言6</span>交番管内別の月次件数の共有</h3>
         <p>曽根交番管内の件数は2024年6月から急に増え、10月まで高い水準が続いた。月ごとの件数を見ていれば、増え始めた時点で気づくことができた。区役所と警察署が交番管内別の月次件数を共有し、急な増加を早く捉えて対策を打てるようにしたい。対策の効果も、区全体の件数ではなく、対策した駐輪場の周辺で被害が何件減ったかで確かめることが望ましい。</p>
+        </div>
       </div>
     </div>
   </section>
