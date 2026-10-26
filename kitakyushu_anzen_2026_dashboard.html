@@ -256,7 +256,7 @@ window.dash = (() => {
       <a href="#q1"><span class="q">問1</span>北九州市の刑法犯 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件</a><span class="arr" aria-hidden="true">→</span>
       <a href="#q2"><span class="q">問2</span>うち自転車盗 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=2">—</span>）</a><span class="arr" aria-hidden="true">→</span>
       <a href="#q3"><span class="q">問3</span>うち小倉南区 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=3">—</span>）</a><span class="arr" aria-hidden="true">→</span>
-      <a href="#q4"><span class="q">提言</span>増加している犯罪への対策</a><span class="kq-pathtail">（2025年の件数）</span>
+      <a href="#q4"><span class="q">提言</span>増加している犯罪への対策</a><span class="kq-pathtail">（数字は2025年の件数）</span>
     </nav>
         <p class="kq-printnote" id="printnote"></p>
   </header>
@@ -299,7 +299,7 @@ window.dash = (() => {
         </div>
         <hr class="kq-div">
         <h3 id="type-title">北九州市の罪種・手口別の対県比（2025年）</h3>
-        <p class="note">市の人口当たり件数÷県の人口当たり件数（1.0＝県平均）。2026年は2025年の人口で計算。自転車盗は市全体では県平均より少ない。</p>
+        <p class="note">市の人口当たり件数÷県の人口当たり件数（1.0＝県平均）。2026年は2025年の人口で計算。北九州市の自転車盗は人口比で見ると県平均より少ない。</p>
         <div class="kq-ctrl" role="group" aria-label="期間">
           <button class="kq-btn" type="button" data-ty="year" aria-pressed="true">2018〜2025年（地図の年）</button>
           <button class="kq-btn" type="button" data-ty="2026" aria-pressed="false">2026年1〜9月（暫定値）</button>
@@ -312,7 +312,7 @@ window.dash = (() => {
   <!-- ===== Q2 ===== -->
   <section class="kq-q" id="q2">
     <div class="kq-qhead"><span class="kq-qnum">問 2</span><h2>北九州市で多く発生している犯罪について</h2></div>
-    <p class="kq-lead">最も多いのは自転車盗（<span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</span>件）で、刑法犯全体の約2割を占める。</p>
+    <p class="kq-lead">件数として最も多いのは自転車盗（<span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</span>件）で、刑法犯全体の約2割を占める。</p>
     <p class="kq-ans"><span class="tag">結論</span>2021年から2025年にかけて、北九州市の認知件数は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=合計">—</b> 件増加した。このうち知能犯 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=知能犯">—</b> 件、自転車盗 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=自転車盗">—</b> 件、万引き <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=万引き">—</b> 件の三つで、増加分の大半を占める。区別で見ると、知能犯は八幡西区で、自転車盗は小倉北区と小倉南区で大きく増加した。一方、粗暴犯は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=粗暴犯">—</b> 件と減少した。</p>
     <div class="kq-grid">
       <div class="kq-card wide">
@@ -659,7 +659,7 @@ window.dash = (() => {
         if (!q || !p) return null;
         const pop = Number(r.pop);
         const o = { name: r.name, year: Number(r.year), pop, fx: Number(q.fx), fy: Number(q.fy) };
-        METRICS.forEach(m => { o[m] = Math.round(Number(r[m]) / pop * 100000) / 100; o[m + '_ratio'] = Math.round((Number(r[m]) / pop) / (Number(p[m]) / Number(p.pop)) * 100) / 100; });
+        METRICS.forEach(m => { o[m + '_n'] = Number(r[m]); o[m] = Math.round(Number(r[m]) / pop * 100000) / 100; o[m + '_ratio'] = Math.round((Number(r[m]) / pop) / (Number(p[m]) / Number(p.pop)) * 100) / 100; });
         return o;
       }).filter(Boolean);
     }
@@ -1189,7 +1189,7 @@ window.dash = (() => {
     const tip = tipFor(box);
     c.on('pointermove', (ev, d) => {
       const { sx, sy } = scaleXY(box, W, H);
-      showTip(box, tip, [['t', `${d.name}（${d.year}年・${MLAB[mm]}）`], [null, `人口千人当たり ${fmt.n2(d[mm])}件`], [null, `県平均の ${d3.format('.2f')(d[mm + '_ratio'])} 倍`]], d.fx * W * sx, (d.fy * H - r(d.pop)) * sy);
+      showTip(box, tip, [['t', `${d.name}（${d.year}年・${MLAB[mm]}）`], [null, `認知件数　${fmt.int(d[mm + '_n'])}件`], [null, `人口　${fmt.int(d.pop)}人`], [null, `人口千人当たり　${fmt.n2(d[mm])}件`], [null, `県平均の ${d3.format('.2f')(d[mm + '_ratio'])} 倍`]], d.fx * W * sx, (d.fy * H - r(d.pop)) * sy);
     }).on('pointerleave', () => { tip.hidden = true; });
     drawn.pmap = true;
   }
