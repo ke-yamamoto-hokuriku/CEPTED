@@ -159,7 +159,8 @@ window.dash = (() => {
 .kq-hyp p { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.6; }
 .kq-props { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--cds-gap-sm) var(--cds-gap-md); }
 @media (max-width: 760px) { .kq-props { grid-template-columns: minmax(0, 1fr); } }
-.kq-props li { display: grid; grid-template-columns: auto 1fr; gap: 2px .6em; align-items: baseline; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); line-height: 1.5; padding: var(--cds-pad-sm) 0; border-top: 1px solid var(--color-border-line); }
+.kq-props li { display: grid; grid-template-columns: auto 1fr; gap: 2px .6em; align-items: baseline; align-content: start; font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); line-height: 1.5; padding: var(--cds-pad-sm) 0; border-top: 1px solid var(--color-border-line); }
+.kq-props li p { grid-column: 1 / -1; margin: 2px 0 0; font-size: var(--cds-font-size-caption); font-weight: 400; color: var(--color-fg-muted); line-height: 1.65; }
 .kq-props li .h { grid-column: 1 / -1; font-size: var(--cds-font-size-caption); font-weight: 400; color: var(--color-fg-muted); }
 .kq-props li .pn { font-size: var(--cds-font-size-caption); font-weight: 700; color: var(--color-bg); background: var(--kq-c0); padding: .1em .6em; border-radius: 999px; letter-spacing: .04em; white-space: nowrap; }
 .kq-foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.7; border-top: 1px solid var(--color-border-line); padding-top: var(--cds-gap-sm); }
@@ -414,12 +415,12 @@ window.dash = (() => {
     <div class="kq-qhead"><span class="kq-qnum">提言</span><h2>増えている三つの犯罪への対策</h2></div>
     <div class="kq-card wide">
       <ul class="kq-props">
-        <li><span class="h">自転車盗</span><span class="pn">提言1</span>学校単位の施錠指導と探究学習</li>
-        <li><span class="h">自転車盗</span><span class="pn">提言2</span>高架下・階段下の駐輪場へのガードパイプ設置</li>
-        <li><span class="h">自転車盗</span><span class="pn">提言3</span>放置自転車の撤去と駐輪場の手入れ</li>
-        <li><span class="h">知能犯（詐欺）</span><span class="pn">提言4</span>AIを使った詐欺の疑似体験</li>
-        <li><span class="h">万引き</span><span class="pn">提言5</span>売場の見通しと出入口の見直し</li>
-        <li><span class="h">共通</span><span class="pn">提言6</span>交番管内別の月次件数の共有</li>
+        <li><span class="h">自転車盗</span><span class="pn">提言1</span><span class="t">学校単位の施錠指導と探究学習</span><p>小倉南区で盗まれた中高生の自転車は7割が無施錠で、学生以外より10ポイント高い。区役所と学校が連携し、学校単位で二重ロックを呼びかける。生徒自身が駐輪場の施錠の有無を数え、オープンデータと比べる探究学習にすると、行動につながりやすい。</p></li>
+        <li><span class="h">自転車盗</span><span class="pn">提言2</span><span class="t">高架下・階段下の駐輪場へのガードパイプ設置</span><p>安部山公園駅や北方駅のように高架下・階段下にある駐輪場は周囲の目が届きにくく、並べるだけの駐輪場では鍵を壊して持ち去ることは容易である。ガードパイプやラックを全列に設け、構造物につなぐ施錠（アースロック）をできるようにする。</p></li>
+        <li><span class="h">自転車盗</span><span class="pn">提言3</span><span class="t">放置自転車の撤去と駐輪場の手入れ</span><p>城野駅南の駐輪場では放置自転車が片付き、区画の表示と「二重ロック！」の看板が掲げられ、城野1丁目の件数は2025年に約3割減った。落書きの消去、照明の清掃、雑草の除去など費用をかけずにできることから始め、管理されている駐輪場であることを示す。</p></li>
+        <li><span class="h">知能犯（詐欺）</span><span class="pn">提言4</span><span class="t">AIを使った詐欺の疑似体験</span><p>知能犯の多くは電話やSNSを通じた詐欺で、手口を知り、だまされにくい人を増やすしかない。大阪府警の四條畷警察署や香川県警では、AIが犯人役となる疑似体験がすでに始まっている。講話で聞くより、だまされかける体験のほうが記憶に残る。</p></li>
+        <li><span class="h">万引き</span><span class="pn">提言5</span><span class="t">売場の見通しと出入口の見直し</span><p>万引きは店員の目が届かない場所で起きる。棚の高さを抑えて見通しをよくする、出入口をレジの近くにまとめる、盗まれやすい商品を店員の動線上に置く、セルフレジ担当者の待機位置を工夫するなど、費用をかけずに始められる。件数の多い店舗への点検と助言の仕組みをつくる。</p></li>
+        <li><span class="h">共通</span><span class="pn">提言6</span><span class="t">交番管内別の月次件数の共有</span><p>曽根交番管内の急増は、月ごとの件数を見ていれば増え始めた時点で気づけた。区役所と警察署が交番管内別の月次件数を共有し、急な増加を早く捉える。対策の効果も、対策した場所の周辺で何件減ったかで確かめる。警視庁の町丁目別月次公開や茨城県警の犯罪情報マップなど、他の地域ではすでに始まっている。</p></li>
       </ul>
     </div>
   </section>
