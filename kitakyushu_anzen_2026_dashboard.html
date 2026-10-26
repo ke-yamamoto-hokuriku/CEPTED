@@ -634,13 +634,13 @@ window.dash = (() => {
     fn: (m) => { const s = y => d3.sum(m.filter(r => r.month >= y + '-06' && r.month <= y + '-10'), r => Number(r.count)); const mo = k => Number((m.find(r => r.month === k) || { count: 0 }).count); return [{ y2023: s(2023), y2024: s(2024), y2025: s(2025), diff: s(2024) - s(2023), jun2023: mo('2023-06'), jun2024: mo('2024-06'), jun2025: mo('2025-06') }]; }
   });
   dash.calc('flowsteps', {
-    inputs: ['kk_cats', 'ward_cats', 'minami_koban'], title: '分析の流れ（2025年の件数）',
+    inputs: ['kk_cats', 'ward_cats_years', 'minami_koban'], title: '分析の流れ（2025年の件数）',
     description: '北九州市の刑法犯総数、そのうち自転車盗、そのうち小倉南区の自転車盗、そのうち曽根交番管内の自転車盗。割合は一つ前の段階に対するもの。曽根交番管内は2024年の件数も示す。',
-    fn: (kk_cats, ward_cats, minami_koban) => {
+    fn: (kk_cats, ward_cats_years, minami_koban) => {
       const y25 = kk_cats.filter(r => Number(r.year) === 2025);
       const total = y25.reduce((s, r) => s + Number(r.count), 0);
       const bike = Number(y25.find(r => r.category === '自転車盗').count);
-      const minami = Number(ward_cats.find(r => r.ward === '小倉南区' && r.category === '自転車盗').c2025);
+      const minami = Number(ward_cats_years.find(r => Number(r.year) === 2025 && r.ward === '小倉南区' && r.category === '自転車盗').count);
       const sone = y => Number((minami_koban.find(r => Number(r.year) === y && r.koban === '曽根') || { count: 0 }).count);
       return [
         { step: 1, label: '北九州市の刑法犯', count: total, share: 1, prev: null },
