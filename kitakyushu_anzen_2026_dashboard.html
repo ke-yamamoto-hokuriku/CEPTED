@@ -245,7 +245,7 @@ window.dash = (() => {
   <header class="kq-head" id="top">
     <h1>北九州市の治安情勢</h1>
     <p class="kq-ver"><span>作成：山本啓一（北陸大学経済経営学部 教授）</span><span>第2版　2026年10月26日更新</span></p>
-    <p>福岡県警察の「刑法犯 市区町村別認知件数」と犯罪オープンデータ（自転車盗）、福岡県が公表した推計人口（各年10月1日現在）をもとに、次の三つの問いについて検討した。件数の多いところへ順に対象を絞って分析した。最後に、犯罪機会論・防犯環境設計（CPTED）の観点から対策を提言する。</p>
+    <p>福岡県警察の統計と犯罪オープンデータ、福岡県の推計人口をもとに、件数の多いところへ順に対象を絞って三つの問いを検討し、犯罪機会論・防犯環境設計（CPTED）の観点から対策を提言する。</p>
     <nav class="kq-path" aria-label="分析の流れ" data-source="flowsteps">
       <a href="#q1"><span class="q">問1</span>北九州市の刑法犯 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件</a><span class="arr" aria-hidden="true">→</span>
       <a href="#q2"><span class="q">問2</span>うち自転車盗 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=2">—</span>）</a><span class="arr" aria-hidden="true">→</span>
@@ -265,7 +265,7 @@ window.dash = (() => {
     <div class="kq-grid">
       <div class="kq-card wide kq-merged">
         <h3 id="pmap-title">人口千人当たり認知件数（2018〜2025年）</h3>
-        <p class="note">左の地図は、円の大きさが人口、色がその年の県平均との比を表す。青が濃いほど県平均より多く、灰色は県平均より少ない。北九州市と福岡市は区ごとに示している。右のグラフは市町村別の値で、縦の破線がその年の県平均である。ボタンで罪種と対象の市町村を、スライダーで年を切り替えられる。「再生」を押すと2018年から順に表示する。「人口10万人以上」は2025年の人口による。</p>
+        <p class="note">円の大きさは人口、色は県平均との比（青が多い）。破線は県平均。</p>
         <div class="kq-ctrl">
           <span role="group" aria-label="罪種" class="kq-ctrl">
             <button class="kq-btn" type="button" data-mm="total" aria-pressed="true">刑法犯総数</button>
@@ -285,7 +285,7 @@ window.dash = (() => {
         <div class="kq-pair">
           <div>
             <div class="kq-chart kq-mapbox" id="pmap-chart" data-source="mapcells"></div>
-            <p class="note">人口は福岡県の推計人口（各年10月1日現在）による。地図：みんなの行政地図</p>
+            <p class="note">人口は福岡県の推計人口（各年10月1日）。地図：みんなの行政地図</p>
           </div>
           <div>
             <h4 id="muni-title" class="kq-subtitle">市町村別 <span class="kq-yearlab" id="muni-year">2025年</span></h4>
@@ -294,7 +294,7 @@ window.dash = (() => {
         </div>
         <hr class="kq-div">
         <h3 id="type-title">北九州市の罪種・手口別の対県比（2025年）</h3>
-        <p class="note">数値は北九州市の人口当たり件数を県の人口当たり件数で割った値。1.0が県平均と同じ水準を表す。年は上の地図のスライダーと「再生」に連動する（年を赤字で示す）。2026年の人口は、2025年10月1日現在の推計人口で代用した。自転車盗は、市全体で見ると県平均より少ないことに注目したい。</p>
+        <p class="note">市の人口当たり件数÷県の人口当たり件数（1.0＝県平均）。2026年は2025年の人口で計算。自転車盗は市全体では県平均より少ない。</p>
         <div class="kq-ctrl" role="group" aria-label="期間">
           <button class="kq-btn" type="button" data-ty="year" aria-pressed="true">2018〜2025年（地図の年）</button>
           <button class="kq-btn" type="button" data-ty="2026" aria-pressed="false">2026年1〜9月（暫定値）</button>
@@ -307,12 +307,12 @@ window.dash = (() => {
   <!-- ===== Q2 ===== -->
   <section class="kq-q" id="q2">
     <div class="kq-qhead"><span class="kq-qnum">問 2</span><h2>北九州市で多く発生している犯罪について</h2></div>
-    <p class="kq-lead">問1で見たとおり、北九州市の刑法犯は人口当たりで県平均並みである。では、市内ではどのような犯罪が多く、何が増えているのか。2025年の件数と2021年からの増減を、罪種・手口別、区別に見た。最も多いのは自転車盗（<span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</span>件）で、刑法犯全体の約2割を占める。2021年からの増加でも、知能犯に次いで大きい。</p>
+    <p class="kq-lead">最も多いのは自転車盗（<span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</span>件）で、刑法犯全体の約2割を占める。</p>
     <p class="kq-ans"><span class="tag">結論</span>2021年から2025年にかけて、北九州市の認知件数は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=合計">—</b> 件増加した。このうち知能犯 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=知能犯">—</b> 件、自転車盗 <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=自転車盗">—</b> 件、万引き <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=万引き">—</b> 件の三つで、増加分の大半を占める。区別で見ると、知能犯は八幡西区で、自転車盗は小倉北区と小倉南区で大きく増加した。一方、粗暴犯は <b class="v" data-fmt="sint" data-source="increase" data-field="change" data-where="category=粗暴犯">—</b> 件と減少した。</p>
     <div class="kq-grid">
       <div class="kq-card wide">
         <h3 id="trend-title">認知件数の推移（2008〜2025年）</h3>
-        <p class="note">左は福岡県全体、右は北九州市（7区の合計）の刑法犯認知件数。福岡県全体も北九州市も2021年を底に増加している。</p>
+        <p class="note">県も市も2021年を底に増加している。</p>
         <div class="kq-pair kq-pair-even">
           <div><h4 class="kq-subtitle">福岡県全体</h4><div class="kq-chart" id="trend-pref" data-source="share_years" style="min-height: 200px"></div></div>
           <div><h4 class="kq-subtitle">北九州市</h4><div class="kq-chart" id="trend-kk" data-source="share_years" style="min-height: 200px"></div></div>
@@ -320,7 +320,7 @@ window.dash = (() => {
       </div>
       <div class="kq-card wide kq-merged">
         <h3 id="inc-title">北九州市における罪種・手口別の認知件数（2018〜2025年）</h3>
-        <p class="note" id="inc-note">右図は年の罪種別件数。「増減」は前年からの増減。左の凡例か右の棒を押すと、その罪種を左右で強調する。「再生」を押すと2018年から順に表示される。件数の少ない罪種は増減率が大きく出やすいことに注意。</p>
+        <p class="note" id="inc-note">件数の少ない罪種は増減率が大きく出やすい。</p>
         <div class="kq-ctrl">
           <span role="group" aria-label="指標" class="kq-ctrl">
             <button class="kq-btn" type="button" data-im="count" aria-pressed="true">件数</button>
@@ -343,12 +343,12 @@ window.dash = (() => {
         </div>
         <hr class="kq-div">
         <h3 id="heat-title">区別・罪種別の認知件数（2018〜2025年）</h3>
-        <p class="note">左図は区別の刑法犯の総数、右図は区別・罪種別の値で、色が濃いほど大きい。「増減」は前年からの増減で、青が増加、灰色が減少を表す。表示年は上のスライダーと「再生」に連動している（年を赤字で示す）。知能犯の多くは詐欺であり、被害者の住む区で認知されることが多いとみられる。</p>
+        <p class="note">知能犯の多くは詐欺で、被害者の住む区で認知されることが多いとみられる。</p>
         <div class="kq-pair kq-pair-q2w">
           <div>
             <h4 class="kq-subtitle">区別の刑法犯 <span class="kq-yearlab" id="wmap-year">2025年</span></h4>
             <div class="kq-chart kq-mapbox" id="wmap-chart" data-source="wardtotal_years"></div>
-            <p class="note">円の大きさは件数、色は人口千人当たりの市平均との比を表す。青が濃いほど市平均より多く、灰色は市平均より少ない。地図：みんなの行政地図</p>
+            <p class="note">円は件数、色は市平均との比（青が多い）。地図：みんなの行政地図</p>
           </div>
           <div>
             <h4 class="kq-subtitle">区別・罪種別 <span class="kq-ctrl" role="group" aria-label="区別の指標"><button class="kq-btn" type="button" data-hm="count" aria-pressed="true">件数</button><button class="kq-btn" type="button" data-hm="rate" aria-pressed="false">人口千人当たり</button><button class="kq-btn" type="button" data-hm="change" aria-pressed="false">前年からの増減</button></span></h4>
@@ -362,12 +362,12 @@ window.dash = (() => {
   <!-- ===== Q3 ===== -->
   <section class="kq-q" id="q3">
     <div class="kq-qhead"><span class="kq-qnum">問 3</span><h2>小倉南区で多発する自転車盗について</h2></div>
-    <p class="kq-lead">市内の自転車盗を区別に見ると、2025年に最も件数が多いのは小倉南区（<span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</span>件）で、市全体の約3割を占める。2024年に北九州市内で自転車盗が増加したが、半分近くが小倉南区であった。小倉南区における自転車盗の発生状況を分析する。</p>
+    <p class="kq-lead">2025年の自転車盗は小倉南区が <span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</span>件で市全体の約3割を占める。2024年の市内の増加分も、半分近くが小倉南区であった。</p>
     <p class="kq-ans"><span class="tag">結論</span>小倉南区の自転車盗は、駅周辺の町丁目に集中している。一方、2024年の急増は、曽根交番管内（下曽根駅周辺）で6〜10月に一時的に集中して発生したもので、2025年には前年までの水準近くまで戻った。残された課題は利用者の施錠である。2025年に盗まれた自転車の <b class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</b> は無施錠で、被害者には中高生が多い。発生時刻は朝の通学時間帯と夕方に集中している。自転車盗の多くは、中高生が通学に使う自転車が無施錠で駅周辺に駐輪されていることが主な原因と考えられる。</p>
     <div class="kq-grid">
       <div class="kq-card wide">
         <h3 id="tmap-title">町別・町丁目別の自転車盗の件数（2018〜2025年）</h3>
-        <p class="note">左図は、町ごとの件数を円の大きさで表している。右図は町丁目別の上位12か所で、駅名は最寄り駅。2023〜2025年の件数上位12町丁目のうち、9か所は駅の近くである。最も多いのは下曽根新町と湯川新町4丁目の2か所で、区全体の約2割を占める。</p>
+        <p class="note">2023〜2025年の上位12町丁目のうち9か所が駅の近く。下曽根新町と湯川新町4丁目で区全体の約2割を占める。</p>
         <div class="kq-ctrl"><button class="kq-btn" id="tmap-play" type="button" aria-pressed="false">再生</button><input class="kq-range" id="tmap-range" type="range" min="2018" max="2025" step="1" value="2024" aria-label="年"><span class="kq-yearlab" id="tmap-year">—</span></div>
         <div class="kq-pair">
           <div>
@@ -382,12 +382,12 @@ window.dash = (() => {
       </div>
       <div class="kq-card">
         <h3 id="koban-title">交番管内別の推移</h3>
-        <p class="note">2024年に曽根交番管内で急増したが、2025年には前年までの水準近くまで減少した。各交番管内の主な駅は、曽根が下曽根駅、葛原が安部山公園駅、北方が城野駅と北方駅、徳力が徳力公団前駅と志井公園駅である。</p>
+        <p class="note">曽根＝下曽根駅、葛原＝安部山公園駅、北方＝城野駅・北方駅、徳力＝徳力公団前駅・志井公園駅。</p>
         <div class="kq-chart" id="koban-chart" data-source="minami_koban"></div>
       </div>
       <div class="kq-card">
         <h3 id="monthly-title">曽根交番管内の月別件数（2023〜2025年）</h3>
-        <p class="note">例年は月に数件であったが、2024年6〜10月に急増した。その後11月には元の水準に戻った。</p>
+        <p class="note">例年は月に数件。2024年6〜10月に急増し、11月に元の水準に戻った。</p>
         <div class="kq-chart" id="monthly-chart" data-source="sone_monthly"></div>
       </div>
     </div>
