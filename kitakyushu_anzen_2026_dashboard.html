@@ -251,7 +251,7 @@ window.dash = (() => {
   <header class="kq-head" id="top">
     <h1>北九州市の治安情勢</h1>
     <p class="kq-ver"><span>作成：山本啓一（北陸大学経済経営学部 教授）</span><span>第2版　2026年10月26日更新</span></p>
-    <p>福岡県警察の統計と犯罪オープンデータ、福岡県の推計人口をもとに、件数の多いところへ順に対象を絞って三つの問いを検討し、犯罪機会論・防犯環境設計（CPTED）の観点から対策を提言する。</p>
+    <p>福岡県警察の統計と犯罪オープンデータ、福岡県の推計人口をもとに、件数の多い順に対象を絞って三つの問いを検討した。それらをもとに、犯罪機会論・防犯環境設計（CPTED）の観点から対策を提言する。</p>
     <nav class="kq-path" aria-label="分析の流れ" data-source="flowsteps">
       <a href="#q1"><span class="q">問1</span>北九州市の刑法犯 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=1">—</b>件</a><span class="arr" aria-hidden="true">→</span>
       <a href="#q2"><span class="q">問2</span>うち自転車盗 <b class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=2">—</b>件（<span class="v" data-fmt="pct" data-source="flowsteps" data-field="share" data-where="step=2">—</span>）</a><span class="arr" aria-hidden="true">→</span>
@@ -325,7 +325,6 @@ window.dash = (() => {
       </div>
       <div class="kq-card wide kq-merged">
         <h3 id="inc-title">北九州市における罪種・手口別の認知件数（2018〜2025年）</h3>
-        <p class="note" id="inc-note">件数の少ない罪種は増減率が大きく出やすい。</p>
         <div class="kq-ctrl">
           <span role="group" aria-label="指標" class="kq-ctrl">
             <button class="kq-btn" type="button" data-im="count" aria-pressed="true">件数</button>
@@ -348,7 +347,6 @@ window.dash = (() => {
         </div>
         <hr class="kq-div">
         <h3 id="heat-title">区別・罪種別の認知件数（2018〜2025年）</h3>
-        <p class="note">知能犯の多くは詐欺で、被害者の住む区で認知されることが多いとみられる。</p>
         <div class="kq-pair kq-pair-q2w">
           <div>
             <h4 class="kq-subtitle">区別の刑法犯 <span class="kq-yearlab" id="wmap-year">2025年</span></h4>
@@ -367,8 +365,8 @@ window.dash = (() => {
   <!-- ===== Q3 ===== -->
   <section class="kq-q" id="q3">
     <div class="kq-qhead"><span class="kq-qnum">問 3</span><h2>小倉南区で多発する自転車盗について</h2></div>
-    <p class="kq-lead">2025年の自転車盗は小倉南区が <span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</span>件で市全体の約3割を占める。2024年の市内の増加分も、半分近くが小倉南区であった。</p>
-    <p class="kq-ans"><span class="tag">結論</span>小倉南区の自転車盗は、駅周辺の町丁目に集中している。一方、2024年の急増は、曽根交番管内（下曽根駅周辺）で6〜10月に一時的に集中して発生したもので、2025年には前年までの水準近くまで戻った。残された課題は利用者の施錠である。2025年に盗まれた自転車の <b class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</b> は無施錠で、被害者には中高生が多い。発生時刻は中高生の通学・下校時間と重なる。自転車盗の多くは、中高生が通学に使う自転車が無施錠で駅周辺に駐輪されていることが主な原因と考えられる。</p>
+    <p class="kq-lead">2025年の自転車盗は小倉南区が <span class="v" data-fmt="int" data-source="flowsteps" data-field="count" data-where="step=3">—</span>件で市全体の約3割を占める。2024年の市内の増加分も、半分近くが小倉南区で発生していた。</p>
+    <p class="kq-ans"><span class="tag">結論</span>小倉南区の自転車盗は、駅周辺の町丁目に集中している。ただし、2024年の急増は、曽根交番管内（下曽根駅周辺）で6〜10月に一時的に集中して発生したもので、2025年には前年までの水準近くまで戻った。残された課題は利用者の施錠である。2025年に盗まれた自転車の <b class="v" data-fmt="pct" data-source="minami_lockshare" data-field="unlocked" data-where="year=2025">—</b> は無施錠で、被害者には中高生が多い。発生時刻は中高生の通学・下校時間と重なる。自転車盗の多くは、中高生が通学に使う自転車が無施錠で駅周辺に駐輪されていることが主な原因と考えられる。</p>
     <div class="kq-grid">
       <div class="kq-card wide">
         <h3 id="tmap-title">町別・町丁目別の自転車盗の件数（2018〜2025年）</h3>
