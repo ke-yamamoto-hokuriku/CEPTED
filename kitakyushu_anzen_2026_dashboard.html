@@ -320,7 +320,7 @@ window.dash = (() => {
       </div>
       <div class="kq-card wide kq-merged">
         <h3 id="inc-title">北九州市における罪種・手口別の認知件数（2018〜2025年）</h3>
-        <p class="note" id="inc-note">右図は年の罪種別件数。「増減」は前年からの増減。「再生」を押すと2018年から順に表示される。件数の少ない罪種は増減率が大きく出やすいことに注意。</p>
+        <p class="note" id="inc-note">右図は年の罪種別件数。「増減」は前年からの増減。左の凡例か右の棒を押すと、その罪種を左右で強調する。「再生」を押すと2018年から順に表示される。件数の少ない罪種は増減率が大きく出やすいことに注意。</p>
         <div class="kq-ctrl">
           <span role="group" aria-label="指標" class="kq-ctrl">
             <button class="kq-btn" type="button" data-im="count" aria-pressed="true">件数</button>
@@ -898,6 +898,9 @@ window.dash = (() => {
         .attr('fill', hl ? C0() : MUTED);
       if (!drawn.inc && motion) b.classed(pos ? 'a-growx' : 'a-growxr', true).style('animation-delay', (i * 70) + 'ms');
       text(svg, pos ? x(r.v) + 5 : x(0) + 5, y(r.category) + y.bandwidth() / 2 + 4, M.lab(r.v), { anchor: 'start', fill: 'var(--color-fg)', weight: hl ? 600 : 400 });
+      if (stackSel === r.category) svg.append('rect').attr('x', 2).attr('y', y(r.category) - 3).attr('width', W - 4).attr('height', y.bandwidth() + 6).attr('rx', 4).attr('fill', 'none').attr('stroke', 'var(--color-fg)').attr('stroke-width', 1.4);
+      svg.append('rect').attr('x', 0).attr('y', y(r.category) - 3).attr('width', W).attr('height', y.bandwidth() + 6).attr('fill', 'transparent').style('cursor', 'pointer')
+        .on('click', () => { stackSel = stackSel === r.category ? null : r.category; drawStack(); drawIncrease(); linkTo('stack-title'); });
     });
     drawn.inc = true;
   }
@@ -940,7 +943,7 @@ window.dash = (() => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'kq-btn'; b.setAttribute('aria-pressed', String(stackSel === c));
       const sw = document.createElement('i'); sw.className = 'kq-sw'; sw.style.background = colorOf(c);
       b.append(sw, document.createTextNode(c));
-      b.addEventListener('click', () => { stackSel = stackSel === c ? null : c; drawStack(); linkTo('stack-title'); });
+      b.addEventListener('click', () => { stackSel = stackSel === c ? null : c; drawStack(); drawIncrease(); linkTo('stack-title'); });
       return b;
     }));
     const wide = years.map(y => { const o = { year: y }; order.forEach(c => { o[c] = (raw.find(r => r.year === y && r.category === c) || { count: 0 }).count; }); return o; });
