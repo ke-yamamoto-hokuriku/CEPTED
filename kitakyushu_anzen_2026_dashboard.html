@@ -141,7 +141,11 @@ window.dash = (() => {
 .kq-divlab { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
 .kq-sep { width: 1px; align-self: stretch; background: var(--color-border-line); margin-inline: var(--cds-gap-xs); }
 .kq-sw { display: inline-block; width: .7em; height: .7em; border-radius: 2px; margin-right: .35em; vertical-align: -.05em; }
-.kq-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.kq-legend { display: flex; flex-wrap: wrap; gap: 2px 2px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.kq-legend .kq-btn { padding: 0 6px; font-size: .74rem; line-height: 1.7; border-color: transparent; background: none; color: var(--color-fg-muted); border-radius: 999px; }
+.kq-legend .kq-btn:hover { background: var(--kq-hl); }
+.kq-legend .kq-btn[aria-pressed="true"] { background: var(--kq-hl); color: var(--color-fg); border-color: var(--color-fg); font-weight: 600; }
+.kq-legend .kq-sw { width: 9px; height: 9px; margin-right: 4px; }
 .kq-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
 .kq-tip .t { color: var(--cds-text-secondary); }
 .kq-hyps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--cds-gap-md); }
@@ -876,7 +880,7 @@ window.dash = (() => {
     if (!need(box, ['inc_years'])) return;
     const M = IM[im];
     document.getElementById('inc-year').textContent = py2 + '年'; document.getElementById('inc-range').value = py2;
-    box.previousElementSibling.innerHTML = M.title(py2);
+    box.previousElementSibling.innerHTML = '<span>' + M.title(py2) + '</span>';
     const rows = dash.data('inc_years').data.filter(r => r.year === py2 && r[M.f] !== null).map(r => ({ category: r.category, v: Number(r[M.f]) })).sort((a, b) => b.v - a.v);
     const W = Math.max(280, box.clientWidth), rowH = 26, m = { t: 6, r: 56, b: 6, l: W < 420 ? 120 : 170 }, H = m.t + m.b + rows.length * rowH;
     const ext = d3.max(rows, r => Math.abs(r.v));
