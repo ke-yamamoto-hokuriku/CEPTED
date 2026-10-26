@@ -375,7 +375,7 @@ window.dash = (() => {
         <div class="kq-pair">
           <div>
             <div class="kq-chart kq-mapbox" id="tmap-chart" data-source="minami_towns"></div>
-            <p class="note">地図：みんなの行政地図</p>
+            <p class="note">円は件数、青はその年の上位5町。件数は福岡県警察の犯罪オープンデータにもとづく。地図：みんなの行政地図</p>
           </div>
           <div>
             <h4 id="block-title" class="kq-subtitle">町丁目別（上位12町丁目）</h4>
@@ -1239,7 +1239,7 @@ window.dash = (() => {
     const tip = tipFor(box);
     c.on('pointermove', (ev, d) => {
       const { sx, sy } = scaleXY(box, W, H);
-      showTip(box, tip, [['t', `${d.town}（${by}年）`], [null, `${d.count}件`]], d.fx * W * sx, (d.fy * H - r(d.count)) * sy);
+      const tot = d3.sum(rows, q => q.count); showTip(box, tip, [['t', `${d.town}（${by}年・自転車盗）`], [null, `認知件数　${fmt.int(d.count)}件`], [null, `小倉南区全体の ${fmt.pct(d.count / tot)}`]], d.fx * W * sx, (d.fy * H - r(d.count)) * sy);
     }).on('pointerleave', () => { tip.hidden = true; });
   }
 
